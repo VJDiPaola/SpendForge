@@ -32,8 +32,11 @@ import { createRuntimeOperationJournalStore } from "@/lib/operations/postgres-st
 
 export const RAIN_NORTHSTAR_PROOF_RECEIPT_ID =
   "audit_rain_northstar_spend_live_v1";
+const configuredAttemptContext = () =>
+  process.env.RAIN_NORTHSTAR_AUTHORIZED_ATTEMPT_ID?.trim() || "fixture";
+
 export const RAIN_NORTHSTAR_RUN_SCOPE = deriveEvidenceFingerprint(
-  "spendforge:atlas:rain-northstar-proof:v1",
+  `spendforge:atlas:rain-northstar-proof:v1:${configuredAttemptContext()}`,
 );
 
 const cardOperationRef = "op_rain_northstar_card_v1";
@@ -339,7 +342,7 @@ function fingerprintFor(kind: keyof typeof operationMetadata) {
   const metadata = operationMetadata[kind];
   return deriveIdempotencyFingerprint({
     missionRef: "mission_atlas_launch_v1",
-    runRef: "run_atlas_rain_northstar_live_v1",
+    runRef: `run_atlas_rain_northstar_live_v1:${configuredAttemptContext()}`,
     offerRef: metadata.offerRef,
     provider: "rain",
     operation: metadata.operation as
