@@ -35,12 +35,13 @@ export function LandingPage() {
             compute, and digital licenses—inside a human-set mandate. It keeps proposal, policy, payment,
             delivery, and outcome evidence distinct.
           </p>
+          <p className={styles.coreLine}>The agent decides. Policy constrains it. Rain executes the payment. SpendForge proves the result.</p>
           <div className={styles.actions}>
             <Link className={styles.primaryAction} href="/missions/atlas-launch-v1">
               Run guided demo
             </Link>
-            <Link className={styles.secondaryAction} href="/missions/atlas-launch-v1?scenario=rain-async">
-              Inspect Rain proof
+            <Link className={styles.secondaryAction} href="/api/audit/receipts/audit_rain_northstar_completed_20260809_v1">
+              View completed Rain receipt
             </Link>
           </div>
           <small>
@@ -71,6 +72,14 @@ export function LandingPage() {
           </div>
           <Link href="/ledger">Review the audit ledger →</Link>
         </aside>
+      </section>
+
+      <section className={styles.provenStrip} aria-label="Proven today">
+        <span>Proven today</span>
+        <strong>Live model decision</strong>
+        <strong>Deterministic policy check</strong>
+        <strong>Completed Rain Sandbox spend</strong>
+        <strong>Downloadable audit receipt</strong>
       </section>
 
       <EvidenceBoundary compact />

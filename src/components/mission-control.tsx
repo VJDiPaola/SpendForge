@@ -218,7 +218,7 @@ export function MissionControl({
             className={presentationScenario === "rain-async" ? styles.demoViewActive : ""}
             href="/missions/atlas-launch-v1?scenario=rain-async"
           >
-            Rain safe-stop evidence
+            Completed Rain proof
           </Link>
           <Link
             aria-current={presentationScenario === "monad-unavailable" ? "page" : undefined}
@@ -247,8 +247,8 @@ export function MissionControl({
         </div>
         <div className={styles.statusModule}>
           <span>{scenario ? "Safeguard status" : "Run status"}</span>
-          <strong>{scenario ? (presentationScenario === "rain-async" ? "Needs reconciliation" : "Provider unavailable") : complete ? "Fixture outcome recorded" : running ? "Mission in progress" : "Ready for review"}</strong>
-          <p>{scenario ? "Dependent actions remain paused" : complete ? "5 fixture audit stages recorded" : `${visibleEvents.length} of ${template.events.length} fixture events`}</p>
+          <strong>{scenario ? (presentationScenario === "rain-async" ? "Completed" : "Provider unavailable") : complete ? "Fixture outcome recorded" : running ? "Mission in progress" : "Ready for review"}</strong>
+          <p>{scenario ? (presentationScenario === "rain-async" ? "Closed with authoritative receipt" : "Dependent actions remain paused") : complete ? "5 fixture audit stages recorded" : `${visibleEvents.length} of ${template.events.length} fixture events`}</p>
         </div>
         <div className={styles.runArea}>
           <button aria-busy={isStarting || running} className={styles.runButton} data-testid="run-mission" disabled={providerActionPaused || isStarting || running || complete} onClick={startMission} type="button">{providerActionPaused ? "Provider action paused" : isStarting ? "Creating run…" : running ? "Mission running…" : complete ? "Fixture complete" : "Run mission"}</button>
@@ -271,7 +271,7 @@ export function MissionControl({
           </dl>
           <div className={styles.providerStateAction}>
             <span>{presentationScenario === "rain-async" ? "Mutation gates closed" : "Delivery blocked"}</span>
-            <Link href={presentationScenario === "rain-async" ? "/ledger#rain-provider-evidence" : "/ledger#monad-provider-evidence"}>Open safe ledger evidence →</Link>
+            <Link href={presentationScenario === "rain-async" ? "/api/audit/receipts/audit_rain_northstar_completed_20260809_v1" : "/ledger#monad-provider-evidence"}>{presentationScenario === "rain-async" ? "View completed receipt →" : "Open safe ledger evidence →"}</Link>
           </div>
         </section>
       ) : null}
