@@ -60,9 +60,33 @@ and maps the rule codes back. Three tests in
 reappears in the adapter.
 
 ```bash
-npm test          # 163 tests across 33 files
+npm test          # 172 tests across 34 files
 npm run verify    # lint → typecheck → test → public-history guard → build
 ```
+
+## Receipts you can actually check
+
+Every receipt the application serves carries a detached HMAC-SHA256 signature
+over its own contents. Verify one without cloning anything but this repo:
+
+```bash
+npm run verify:receipt -- https://spendforge.vercel.app/api/audit/receipts/audit_rain_northstar_completed_20260809_v1
+```
+
+```
+PASS  signature verified for https://spendforge.vercel.app/api/audit/receipts/...
+      key: spendforge-demo-v1
+```
+
+Edit a single field of the JSON and it fails, with exit code 1.
+
+The demo key is published in [`receipt-signature.ts`](./src/lib/operations/receipt-signature.ts)
+and is **not** a public key — HMAC is symmetric and has no private counterpart.
+A matching signature proves the receipt is byte-for-byte what SpendForge
+produced and was not edited afterward. It does not prove authorship, because
+anyone can hold a published key. A deployment that needs authorship sets
+`RECEIPT_SIGNING_KEY` to a secret; receipts then carry that key's id and the
+demo key is not involved.
 
 ## Architecture
 

@@ -7,5 +7,6 @@ export * from "./journal";
 export * from "./persistence-errors";
 export * from "./rain-sandbox";
 export * from "./receipt";
+export * from "./receipt-signature";
 export * from "./redaction";
 export * from "./schemas";

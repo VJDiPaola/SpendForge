@@ -8,6 +8,7 @@ import {
   type PurchaseDecisionInput,
 } from "@/lib/decision";
 import { assertUiSafePayload } from "@/lib/operations/redaction";
+import { receiptSignatureSchema } from "@/lib/operations/schemas";
 import type { MissionRun } from "@/lib/domain";
 
 import {
@@ -30,6 +31,8 @@ const atlasDecisionReceiptSchema = z
     disclosureCode: z.literal("FIXTURE_DECISION_NO_OPENAI_API_CALL"),
     chainOfThoughtStored: z.literal(false),
     decision: auditedPurchaseDecisionSchema,
+    // Attached when the receipt is served. See receipt-signature.ts.
+    signature: receiptSignatureSchema.optional(),
   })
   .strict();
 

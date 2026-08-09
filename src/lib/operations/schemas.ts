@@ -331,6 +331,29 @@ export const readbackCountsSchema = z
   })
   .strict();
 
+/**
+ * A detached HMAC-SHA256 signature over every other field of the receipt.
+ * `salt` is part of the signed message and is published here so verification
+ * is exact; it exists only to re-derive a digest that the PAN scanner would
+ * otherwise reject.
+ */
+export const receiptSignatureSchema = z
+  .object({
+    algorithm: z.literal("HMAC-SHA256"),
+    keyId: z
+      .string()
+      .trim()
+      .min(1)
+      .max(64)
+      .regex(/^[A-Za-z0-9._-]+$/, "Key id contains unsafe characters"),
+    salt: z.number().int().min(0).max(63),
+    value: z
+      .string()
+      .regex(/^hmac-sha256:[a-f0-9]{64}$/, "Signature must be an HMAC-SHA256 digest"),
+  })
+  .strict();
+export type ReceiptSignature = z.infer<typeof receiptSignatureSchema>;
+
 export const auditReceiptSchema = z
   .object({
     schemaVersion: z.literal(1),
@@ -352,6 +375,7 @@ export const auditReceiptSchema = z
       })
       .strict(),
     operations: z.array(operationJournalEntrySchema).max(500),
+    signature: receiptSignatureSchema.optional(),
   })
   .strict();
 export type AuditReceipt = z.infer<typeof auditReceiptSchema>;
