@@ -27,20 +27,20 @@ const AGENT_DECISION_RECEIPT_PATH =
 const presentationScenarios = {
   "rain-async": {
     eyebrow: "Recorded Rain Sandbox evidence",
-    title: "Settlement submitted once; terminal spend unconfirmed.",
+    title: "Rain completed the scoped 12-cent sandbox purchase.",
     detail:
-      "A fresh 12-cent scoped card matched direct readback and Rain accepted the authorization. A later exact GET matched every causal field. SpendForge submitted settlement once; Rain returned HTTP 400 and three exact readbacks remained nonterminal. The outcome is ambiguous and will not be retried. Historical funding remains an uncorrelated HTTP 202 acknowledgment.",
+      "Rain issued a fresh scoped virtual card, accepted the 12-cent authorization and settlement, and direct transaction readback returned completed with the expected card, user, merchant, MCC, amount, and currency.",
     truth:
-      "Actual redacted sandbox evidence. Authorization acceptance is not settlement, completed spend, or real-money movement.",
+      "Authoritative Rain Sandbox evidence. This is a simulated sandbox purchase; no production funds moved.",
     facts: [
       ["Card", "Issued + direct readback matched"],
       ["Authorization", "Provider response accepted"],
       ["Exact transaction GET", "Causal fields matched"],
-      ["Settlement POST", "1 · HTTP 400"],
-      ["Terminal readbacks", "3 · nonterminal"],
-      ["Completed spend", "Not proven"],
+      ["Settlement POST", "1 · HTTP 200"],
+      ["Terminal readback", "Completed"],
+      ["Completed spend", "Provider-confirmed sandbox"],
       ["Funding", "HTTP 202 + no causal correlation"],
-      ["Safe state", "Needs reconciliation"],
+      ["Safe state", "Closed with receipt"],
     ],
   },
   "monad-unavailable": {

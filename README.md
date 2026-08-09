@@ -14,25 +14,18 @@ renewals, or cancellations.
 ## Current status
 
 **The recording build contains one durable live OpenAI purchase proposal, a
-complete labeled fixture walkthrough, a proven Preview-only operation journal,
-and partial Rain Sandbox evidence. One bounded Responses API call proposed the
-Pulse resource with a one-cent maximum; deterministic policy verified it and did
-not grant payment authority. Rain issued a fresh scoped card, direct GET matched
-it as active and virtual, and Rain accepted a 12-USD-cent authorization. The
-exact transaction readback later matched every causal field. SpendForge then
-submitted exactly one settlement request; Rain returned HTTP 400 and three
-bounded exact readbacks remained nonterminal. The outcome is ambiguous, so no
-completed spend is claimed and settlement will not be retried. Historical
-funding remains an uncorrelated HTTP 202 acknowledgment. A read-only Monad
+complete guided walkthrough, a proven Preview-only operation journal, and a
+completed Rain Sandbox simulated purchase. Rain issued a scoped virtual card,
+accepted a 12-cent Northstar authorization and settlement, and direct transaction
+readback returned completed with the expected card, user, merchant, MCC, amount,
+and currency. Historical funding remains an uncorrelated HTTP 202 acknowledgment. A read-only Monad
 facilitator capability preflight passed; no wallet, RPC, payment, or delivery
 call occurred.**
 
 The repository contains a production-buildable Next.js application with a deterministic Atlas mission, bounded purchase-proposal interface, policy engine, cross-rail ledger, protected-Preview/local artifact route, a current server-only Rain sandbox adapter, health endpoints, and automated tests. Fixture UI remains visibly labeled. See `DEMO-NOTES.md` for the exact deployed and provider-verified state.
 
-The audited Rain sequence remains a
-[no-go for an end-to-end spend claim](./docs/RAIN-WORKFLOW-VERDICT.md). The
-authorization response is real sandbox evidence; it is not settlement or money
-movement. All execution routes and mutation gates are closed in the final build.
+The audited Rain sequence now proves a completed simulated sandbox spend. All
+execution routes and mutation gates are closed in the final build.
 
 Source repository: [VJDiPaola/SpendForge](https://github.com/VJDiPaola/SpendForge).
 It has no open-source license; public visibility does not grant reuse rights.

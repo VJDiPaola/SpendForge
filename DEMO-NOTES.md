@@ -2,7 +2,7 @@
 
 ## Current truth
 
-**A local application, fixture demo, and protected Vercel Preview exist. One bounded live OpenAI Responses call produced a durable strict purchase proposal that deterministic policy independently verified; it did not authorize payment. Rain Sandbox directly confirmed a fresh active virtual scoped card and accepted a 12-USD-cent authorization. A later exact GET matched every causal field, then exactly one settlement POST returned HTTP 400 and three bounded readbacks stayed nonterminal. That settlement outcome is ambiguous and will not be retried; completed spend is not proven. Historical funding remains an uncorrelated HTTP 202 acknowledgment. Monad's read-only `/supported` preflight passed, but payment, replay capture, and demo recording remain unproven.**
+**A public guided demo and protected Vercel Preview exist. One bounded live OpenAI Responses call produced a durable strict purchase proposal that deterministic policy independently verified. Rain Sandbox then issued a scoped virtual card, accepted a 12-cent Northstar authorization and settlement, and direct transaction readback returned completed with every causal field matched. This is a completed simulated sandbox spend; no production funds moved. Historical funding remains an uncorrelated HTTP 202 acknowledgment. Monad's read-only `/supported` preflight passed, but testnet payment remains unproven.**
 
 - The public source repository is `https://github.com/VJDiPaola/SpendForge`; it
   remains unlicensed/all-rights-reserved.

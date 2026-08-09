@@ -2,8 +2,10 @@ import "server-only";
 
 import {
   buildRainCardAuditReceipt,
+  buildRainCompletedSpendAuditReceipt,
   buildSyntheticAuditReceipt,
   RAIN_CARD_AUDIT_RECEIPT_ID,
+  RAIN_COMPLETED_SPEND_RECEIPT_ID,
   SYNTHETIC_AUDIT_RECEIPT_ID,
 } from "@/lib/operations";
 import {
@@ -44,6 +46,7 @@ export async function GET(
   if (
     receiptId !== SYNTHETIC_AUDIT_RECEIPT_ID &&
     receiptId !== RAIN_CARD_AUDIT_RECEIPT_ID &&
+    receiptId !== RAIN_COMPLETED_SPEND_RECEIPT_ID &&
     receiptId !== ATLAS_AGENT_DECISION_RECEIPT_ID &&
     receiptId !== OPENAI_DECISION_PROOF_RECEIPT_ID &&
     receiptId !== RAIN_NORTHSTAR_PROOF_RECEIPT_ID &&
@@ -56,6 +59,7 @@ export async function GET(
   }
 
   const isRainCardReceipt = receiptId === RAIN_CARD_AUDIT_RECEIPT_ID;
+  const isRainCompletedSpendReceipt = receiptId === RAIN_COMPLETED_SPEND_RECEIPT_ID;
   const isAgentDecisionReceipt =
     receiptId === ATLAS_AGENT_DECISION_RECEIPT_ID;
   const isLiveOpenAIDecisionReceipt =
@@ -91,6 +95,8 @@ export async function GET(
   } else {
     receipt = isRainCardReceipt
       ? buildRainCardAuditReceipt()
+      : isRainCompletedSpendReceipt
+        ? buildRainCompletedSpendAuditReceipt()
       : isAgentDecisionReceipt
         ? await buildAtlasDecisionReceipt()
         : buildSyntheticAuditReceipt();
@@ -100,6 +106,8 @@ export async function GET(
       ...safeHeaders,
       "Content-Disposition": isRainCardReceipt
         ? 'attachment; filename="spendforge-rain-card-redacted-capture-20260808-v2.json"'
+        : isRainCompletedSpendReceipt
+          ? 'attachment; filename="spendforge-rain-northstar-completed-20260809-v1.json"'
         : isLiveOpenAIDecisionReceipt
           ? 'attachment; filename="spendforge-atlas-openai-decision-live-v1.json"'
         : isRainNorthstarReceipt
@@ -111,6 +119,8 @@ export async function GET(
           : 'attachment; filename="spendforge-audit-atlas-fixture-v1.json"',
       "X-SpendForge-Evidence-Mode": isRainCardReceipt
         ? "live-sandbox"
+        : isRainCompletedSpendReceipt
+          ? "rain-sandbox-completed"
         : isRainNorthstarReceipt
           ? "rain-sandbox-attempt"
         : isMonadX402Receipt
@@ -118,7 +128,7 @@ export async function GET(
         : isLiveOpenAIDecisionReceipt
           ? "openai-live-proposal"
         : "fixture",
-      ...(isRainCardReceipt
+      ...(isRainCardReceipt || isRainCompletedSpendReceipt
         ? { "X-SpendForge-Evidence-Source": "verified-redacted-capture" }
         : isLiveOpenAIDecisionReceipt
           ? { "X-SpendForge-Evidence-Source": "durable-structured-model-proof" }

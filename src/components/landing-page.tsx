@@ -29,7 +29,7 @@ export function LandingPage() {
       <section className={styles.hero}>
         <div className={styles.heroCopy}>
           <p className="eyebrow">Autonomous microprocurement</p>
-          <h1>Let agents buy small digital resources. Make every step prove itself.</h1>
+          <h1>Autonomous microprocurement with policy-bound payments and receipts you can audit.</h1>
           <p>
             SpendForge is for low-value, preapproved, machine-deliverable resources—API access, dataset slices,
             compute, and digital licenses—inside a human-set mandate. It keeps proposal, policy, payment,
@@ -37,10 +37,10 @@ export function LandingPage() {
           </p>
           <div className={styles.actions}>
             <Link className={styles.primaryAction} href="/missions/atlas-launch-v1">
-              Open fixture walkthrough
+              Run guided demo
             </Link>
             <Link className={styles.secondaryAction} href="/missions/atlas-launch-v1?scenario=rain-async">
-              Inspect Rain safe-stop
+              Inspect Rain proof
             </Link>
           </div>
           <small>
@@ -61,8 +61,8 @@ export function LandingPage() {
           </div>
           <div className={styles.receiptStatus}>
             <span>Rain Sandbox</span>
-            <strong>Authorization accepted; spend unproven</strong>
-            <p>A card and authorization matched. One settlement POST returned HTTP 400 and three exact readbacks stayed nonterminal, so no completed spend is claimed.</p>
+            <strong>Completed simulated spend verified</strong>
+            <p>Rain issued a scoped virtual card, accepted the 12-cent authorization and settlement, and direct transaction readback returned completed.</p>
           </div>
           <div className={styles.receiptStatus}>
             <span>Monad Testnet</span>

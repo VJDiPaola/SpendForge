@@ -17,6 +17,7 @@ import {
   RAIN_NORTHSTAR_PROOF_RECEIPT_ID,
   readRainNorthstarAttemptReceipt,
 } from "@/lib/integrations/rain/northstar-proof";
+import { RAIN_COMPLETED_SPEND_RECEIPT_ID } from "@/lib/operations";
 
 export const dynamic = "force-dynamic";
 
@@ -27,11 +28,6 @@ export default async function LedgerPage() {
     readOpenAIDecisionProof().catch(() => null),
     readRainNorthstarAttemptReceipt().catch(() => null),
   ]);
-  const rainAuthorizationAccepted = liveRainAttempt?.operations.some(
-    (entry) =>
-      entry.operation === "rain.authorize_transaction" &&
-      entry.state === "provider-accepted",
-  );
   const agentResource = run.offers.find(
     (offer) =>
       offer.id === agentDecision.policyVerification.selectedResourceId,
@@ -45,7 +41,7 @@ export default async function LedgerPage() {
     <PlatformShell>
       <div className={styles.view}>
         <header className={styles.heading}><div><p className="eyebrow">Audit center</p><h1>Ledger</h1><p>Decisions, provider state, resource delivery, and outcome evidence remain separate facts.</p></div><Link className={styles.primaryLink} href={`/missions/atlas-launch-v1?run=${run.id}`}>Open fixture run</Link></header>
-        <div className={styles.disclosure}>Mixed evidence. Live-model and Rain Sandbox records are durable redacted captures; the animated mission, payments, deliveries, and artifact remain synthetic fixtures. Rain settlement is ambiguous and Monad payment is unproven.</div>
+        <div className={styles.disclosure}>The guided mission remains synthetic. Live OpenAI and Rain Sandbox evidence are separately labeled, redacted, and downloadable; Monad payment remains unproven.</div>
         <EvidenceBoundary compact />
         {liveOpenAIProof ? (
           <section className={styles.agentEvidence} id="live-agent-decision-evidence" aria-labelledby="live-agent-decision-title">
@@ -110,11 +106,12 @@ export default async function LedgerPage() {
           </div>
           <div className={styles.providerEvidenceGrid}>
             <article id="rain-provider-evidence">
-              <div className={styles.cardTop}><span className={`${styles.badge} ${styles.rain}`}>Rain Sandbox</span><span className={`${styles.badge} ${styles.warning}`}>Mixed evidence</span></div>
-              <h3>Card and authorization matched; settlement ambiguous</h3>
-              <p>A fresh scoped card matched direct readback and Rain accepted a 12-cent authorization. A later exact GET matched every causal field. One settlement POST returned HTTP 400; three bounded exact readbacks stayed nonterminal. SpendForge will not retry and claims no completed spend. Historical funding remains an uncorrelated HTTP 202 acknowledgment.</p>
-              <dl className={styles.proofFacts}><div><dt>Funding</dt><dd>Uncorrelated HTTP 202</dd></div><div><dt>Card</dt><dd>Direct readback confirmed</dd></div><div><dt>Authorization</dt><dd>{rainAuthorizationAccepted ? "Provider response accepted" : "Protected Preview record not loaded locally"}</dd></div><div><dt>Settlement</dt><dd>1 POST · HTTP 400 · nonterminal readback</dd></div></dl>
-              <strong>Authorization acceptance is not settlement or money movement.</strong>
+              <div className={styles.cardTop}><span className={`${styles.badge} ${styles.rain}`}>Rain Sandbox</span><span className={`${styles.badge} ${styles.success}`}>Completed</span></div>
+              <h3>Scoped card purchase completed and read back</h3>
+              <p>Rain issued a single-purpose virtual card, accepted a 12-cent Northstar authorization and settlement, and direct GET returned completed with every causal field matched.</p>
+              <dl className={styles.proofFacts}><div><dt>Funding</dt><dd>Prior funding remains uncorrelated</dd></div><div><dt>Card</dt><dd>Direct readback confirmed</dd></div><div><dt>Authorization</dt><dd>HTTP 200 · exact readback matched</dd></div><div><dt>Settlement</dt><dd>HTTP 200 · completed readback</dd></div></dl>
+              <strong>Rain Sandbox simulated spend; no production funds moved.</strong>
+              <a download href={`/api/audit/receipts/${RAIN_COMPLETED_SPEND_RECEIPT_ID}`}>Download completed Rain receipt ↓</a>
               {liveRainAttempt ? <a download href={`/api/audit/receipts/${RAIN_NORTHSTAR_PROOF_RECEIPT_ID}`}>Download current redacted Rain attempt ↓</a> : null}
               <a download href="/api/audit/receipts/audit_rain_card_20260808_v2">Download earlier card capture ↓</a>
               <Link href="/missions/atlas-launch-v1?scenario=rain-async">Open the Rain safe-stop view →</Link>

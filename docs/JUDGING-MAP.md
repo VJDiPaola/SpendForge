@@ -2,9 +2,8 @@
 
 **Purpose:** adversarial claim review, not promotional copy.
 **Current snapshot:** one live bounded OpenAI proposal; durable Preview-only CAS
-journal; Rain Sandbox card issuance/readback plus an accepted authorization;
-one settlement POST followed by nonterminal readbacks; zero completed-spend
-proof; one read-only Monad `/supported` call and zero Monad payment calls. The animated mission, payments,
+journal; a completed Rain Sandbox scoped-card purchase with authoritative direct
+readback; one read-only Monad `/supported` call and zero Monad payment calls. The animated mission, payments,
 deliveries, and artifact remain labeled fixtures.
 
 ## Judge questions
@@ -12,8 +11,8 @@ deliveries, and artifact remain labeled fixtures.
 | Question | Evidence-backed answer | Inspectable proof |
 |---|---|---|
 | Is the agent deciding? | **Yes, narrowly.** One protected Preview Responses call proposed the fixed-catalog Pulse resource with a one-cent maximum. Deterministic code independently verified the quote, vendor, evidence, caps, duplicate state, and policy rules. The model had no payment tools and could not override policy. | Live decision card and downloadable receipt in `/ledger`; model/prompt versions, input/output digests, 1,617-token usage, structured output, and policy result. |
-| Did money move? | **Not proven.** Rain accepted a sandbox authorization and an exact GET later matched the causal fields. One settlement POST returned HTTP 400; three exact readbacks remained nonterminal, so the outcome stays ambiguous and will not be retried. Monad payment was not attempted. | Rain redacted attempt receipt: card/readback, authorization, causal reconciliation, one settlement submission, and three nonterminal readbacks. |
-| What uniquely did Rain enable? | Rain supplied provider-owned scoped-card issuance, active/virtual direct readback, and a sandbox authorization response for a synthetic programmatic merchant. SpendForge did not rebuild card issuance or provider authorization. | Masked Rain operation references, response shapes, readback states, and kill-switch/CAS evidence. |
+| Did money move? | **Yes on the simulated Rain Sandbox rail.** Rain accepted the 12-cent authorization and settlement; exact direct GET returned completed with all causal fields matched. No production funds moved. Monad payment was not attempted. | Downloadable completed Rain receipt with masked references, HTTP status, response shapes, and terminal direct-readback predicates. |
+| What uniquely did Rain enable? | Rain supplied the scoped virtual card, provider authorization, settlement, and authoritative transaction record. SpendForge supplied the model proposal, deterministic policy, durable attempt journal, and receipt. | Masked Rain operation references, response shapes, readback states, and kill-switch/CAS evidence. |
 | Can every claim be proved? | Every **current** provider/model claim is scoped to a downloadable redacted receipt. The full fixture outcome is product evidence, not a causal live-payment graph. | Ledger truth labels, live decision receipt, Rain attempt receipt, fixture receipt, artifact proof strip. |
 | Is there a credible fallback? | Yes. The labeled fixture demonstrates the full decision/policy/delivery/outcome contract, while Rain and Monad safe-stop screens freeze dependent work without inventing success. | Mission demo navigator, failure views, backup script, deterministic tests. |
 
