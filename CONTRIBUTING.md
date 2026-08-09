@@ -1,8 +1,8 @@
 # Contributing
 
 SpendForge is a hackathon prototype with unusually strict evidence boundaries.
-Before changing behavior, read `AGENTS.md`, the `spec/` package, and
-`DEMO-NOTES.md`.
+Before changing behavior, read `AGENTS.md`, the `docs/spec/` package, and
+`docs/DEMO-NOTES.md`.
 
 ## Local workflow
 
@@ -13,7 +13,7 @@ Before changing behavior, read `AGENTS.md`, the `spec/` package, and
    operations, and separate payment/delivery/outcome states.
 4. Run `npm.cmd run verify` on Windows, or the equivalent npm scripts on your
    platform.
-5. Update `DEMO-NOTES.md` whenever a fixture/live/proven boundary changes.
+5. Update `docs/DEMO-NOTES.md` whenever a fixture/live/proven boundary changes.
 
 Provider calls require an explicit, bounded authorization and a durable
 pre-call claim. A passing fixture or contract test never establishes live

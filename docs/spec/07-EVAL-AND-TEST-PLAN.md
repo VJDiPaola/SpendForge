@@ -174,7 +174,7 @@ Requirements:
 - Public artifact Lighthouse performance target: 90 or better in a controlled run.
 - No unoptimized hero image that delays the demo.
 
-Performance targets are goals, not fabricated outcomes. Record actual measurements in `DEMO-NOTES.md`.
+Performance targets are goals, not fabricated outcomes. Record actual measurements in `docs/DEMO-NOTES.md`.
 
 ## Release gates
 
@@ -187,7 +187,7 @@ Performance targets are goals, not fabricated outcomes. Record actual measuremen
 - [ ] Accessibility and visual checks pass.
 - [ ] Incognito public artifact and proof routes work.
 - [ ] Replay mode is clearly labeled and makes no live provider calls.
-- [ ] `DEMO-NOTES.md` reflects current truth.
+- [ ] `docs/DEMO-NOTES.md` reflects current truth.
 
 ## Expected commands after scaffolding
 

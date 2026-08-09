@@ -19,7 +19,7 @@ The integration owner completes a 45-minute preflight:
 9. Select the model provider that is already accessible.
 10. Deploy a Next.js hello world to Vercel.
 
-Record results in `DEMO-NOTES.md`. If an integration remains unproven after 45 minutes, preserve the live adapter task and continue UI/domain work with a visibly labeled fixture. Do not downgrade the final challenge requirement silently.
+Record results in `docs/DEMO-NOTES.md`. If an integration remains unproven after 45 minutes, preserve the live adapter task and continue UI/domain work with a visibly labeled fixture. Do not downgrade the final challenge requirement silently.
 
 ## Workstream dependency graph
 
@@ -50,7 +50,7 @@ flowchart TD
 - Redacted facilitator `/supported` fixture.
 - Testnet buyer/seller public addresses documented without private keys.
 - Database and Vercel preview smoke proof.
-- Updated environment section in `DEMO-NOTES.md`.
+- Updated environment section in `docs/DEMO-NOTES.md`.
 
 ### Stop conditions
 
@@ -125,7 +125,7 @@ flowchart TD
 ## Packet 4: Monad x402 adapter and supplier
 
 **Suggested branch:** `feat/monad-x402`
-**Owns:** `src/lib/integrations/x402/**`, `src/app/api/resources/**`, x402 tests
+**Owns:** `src/experimental/x402/**`, `src/app/api/resources/**`, x402 tests
 **Depends on:** Packets 0 and 2
 
 ### Deliverables
@@ -191,7 +191,7 @@ flowchart TD
 ## Packet 7: Deployment, QA, and demo package
 
 **Suggested branch:** `chore/demo-release`
-**Owns:** Playwright, visual checks, README updates, submission assets, `DEMO-NOTES.md`
+**Owns:** Playwright, visual checks, README updates, submission assets, `docs/DEMO-NOTES.md`
 **Depends on:** Packet 6
 
 ### Deliverables
@@ -268,4 +268,4 @@ Each workstream returns:
 
 ## Final definition of done
 
-The project is done only when every release gate in `07-EVAL-AND-TEST-PLAN.md` passes and the final state in `DEMO-NOTES.md` distinguishes live, sandbox, testnet, synthetic, and replay elements accurately.
+The project is done only when every release gate in `07-EVAL-AND-TEST-PLAN.md` passes and the final state in `docs/DEMO-NOTES.md` distinguishes live, sandbox, testnet, synthetic, and replay elements accurately.
