@@ -9,6 +9,22 @@ const boundedIdSchema = z
 
 const boundedSummarySchema = z.string().trim().min(1).max(600);
 
+/**
+ * Every amount in this contract is a non-negative integer in the minor unit of
+ * the mission's accounting asset. For a USD mission that unit is cents, which
+ * is why the field names end in `Cents` — those names are part of the model
+ * prompt contract and are deliberately stable. A mission that normalizes a
+ * mixed-asset budget into a finer accounting unit passes that unit instead;
+ * the engine never mixes units within a single evaluation, so the comparisons
+ * hold either way.
+ */
+const minorUnitsSchema = z.number().int().nonnegative().max(10_000_000_000);
+
+const walletAddressSchema = z
+  .string()
+  .trim()
+  .regex(/^0x[0-9a-fA-F]{40}$/, "Wallet address must be a 20-byte hex address");
+
 const uniqueIdsSchema = z
   .array(boundedIdSchema)
   .max(32)
@@ -58,6 +74,25 @@ export const decisionProviderStateSchema = z.enum([
   "UNAVAILABLE",
 ]);
 
+export const decisionProvenanceSchema = z.enum([
+  "SEEDED",
+  "SIGNED",
+  "VERIFIED",
+]);
+
+export const decisionLicenseUsageSchema = z.enum([
+  "DEMO_ONLY",
+  "PERMISSIVE",
+  "COMMERCIAL",
+]);
+
+export const decisionDeliveryTypeSchema = z.enum([
+  "MANIFEST",
+  "ASSET",
+  "JSON",
+  "COMPUTE_JOB",
+]);
+
 export const decisionAttemptStateSchema = z.enum([
   "NONE",
   "IN_FLIGHT",
@@ -83,9 +118,9 @@ export const purchaseDecisionInputSchema = z
       .object({
         id: boundedIdSchema,
         objective: z.string().trim().min(1).max(1_500),
-        totalBudgetCents: z.number().int().nonnegative().max(10_000_000),
-        perPurchaseCapCents: z.number().int().nonnegative().max(10_000_000),
-        remainingBudgetCents: z.number().int().nonnegative().max(10_000_000),
+        totalBudgetCents: minorUnitsSchema,
+        perPurchaseCapCents: minorUnitsSchema,
+        remainingBudgetCents: minorUnitsSchema,
         allowedResourceTypes: z
           .array(decisionResourceTypeSchema)
           .min(1)
@@ -99,6 +134,27 @@ export const purchaseDecisionInputSchema = z
           }),
         requiredEvidenceIds: uniqueIdsSchema,
         deadline: z.string().datetime({ offset: true }),
+        // Optional mandate constraints. A constraint that is absent is not
+        // enforced; a constraint that is present is enforced identically for
+        // every caller, which is the point of having one engine.
+        allowedPaymentRails: z
+          .array(decisionPaymentRailSchema)
+          .min(1)
+          .max(3)
+          .optional(),
+        minimumProvenance: decisionProvenanceSchema.optional(),
+        allowedLicenseUsages: z
+          .array(decisionLicenseUsageSchema)
+          .min(1)
+          .max(3)
+          .optional(),
+        supportedDeliveryTypes: z
+          .array(decisionDeliveryTypeSchema)
+          .min(1)
+          .max(4)
+          .optional(),
+        buyerWalletAddress: walletAddressSchema.optional(),
+        selfDealingExceptionResourceIds: uniqueIdsSchema.optional(),
       })
       .strict(),
     catalog: z
@@ -112,9 +168,12 @@ export const purchaseDecisionInputSchema = z
             merchantCategoryCode: z.string().regex(/^\d{4}$/).nullable(),
             resourceType: decisionResourceTypeSchema,
             paymentRail: decisionPaymentRailSchema,
-            quotedPriceCents: z.number().int().nonnegative().max(10_000_000),
+            quotedPriceCents: minorUnitsSchema,
             active: z.boolean(),
-            provenance: z.enum(["SEEDED", "SIGNED", "VERIFIED"]),
+            provenance: decisionProvenanceSchema,
+            licenseUsage: decisionLicenseUsageSchema.optional(),
+            deliveryType: decisionDeliveryTypeSchema.optional(),
+            sellerWalletAddress: walletAddressSchema.optional(),
             evidenceIds: uniqueIdsSchema,
             securitySignals: z
               .array(decisionSecuritySignalSchema)
@@ -141,6 +200,10 @@ export const purchaseDecisionInputSchema = z
       )
       .max(64),
     now: z.string().datetime({ offset: true }),
+    // Rail readiness observed outside the model. Absent means "not checked".
+    providerHealth: z
+      .partialRecord(decisionPaymentRailSchema, z.boolean())
+      .optional(),
   })
   .strict()
   .superRefine((input, context) => {
@@ -190,11 +253,7 @@ export const modelPurchaseProposalSchema = z
   .object({
     action: decisionActionSchema,
     selectedResourceId: boundedIdSchema.nullable(),
-    maximumAuthorizedCents: z
-      .number()
-      .int()
-      .nonnegative()
-      .max(10_000_000),
+    maximumAuthorizedCents: minorUnitsSchema,
     rationale: boundedSummarySchema,
     evidenceIds: uniqueIdsSchema,
     policyRisks: z
@@ -251,9 +310,16 @@ export const decisionPolicyRuleSchema = z.enum([
   "MODEL_REQUESTED_REVIEW",
   "RESOURCE_NOT_SELECTED",
   "RESOURCE_NOT_IN_CATALOG",
+  "RESOURCE_SCHEMA_INVALID",
   "RESOURCE_INACTIVE",
   "RESOURCE_TYPE_DISALLOWED",
   "VENDOR_DISALLOWED",
+  "RAIL_DISALLOWED",
+  "PROVENANCE_TOO_LOW",
+  "LICENSE_DISALLOWED",
+  "DELIVERY_TYPE_UNSUPPORTED",
+  "SELF_DEALING_RISK",
+  "PROVIDER_CONFIGURATION_UNHEALTHY",
   "MCC_MISSING",
   "MCC_DISALLOWED",
   "PER_PURCHASE_CAP_EXCEEDED",
@@ -278,11 +344,7 @@ export const verifiedPurchaseDecisionSchema = z
   .object({
     finalAction: decisionActionSchema,
     selectedResourceId: boundedIdSchema.nullable(),
-    verifiedMaximumAuthorizedCents: z
-      .number()
-      .int()
-      .nonnegative()
-      .max(10_000_000),
+    verifiedMaximumAuthorizedCents: minorUnitsSchema,
     eligibleForExecution: z.boolean(),
     ruleCodes: z.array(decisionPolicyRuleSchema).min(1).max(32),
     modelActionOverridden: z.boolean(),
