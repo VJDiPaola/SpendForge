@@ -1,0 +1,44 @@
+name: Bug report
+description: Report a reproducible SpendForge problem without sensitive data.
+title: "bug: "
+body:
+  - type: markdown
+    attributes:
+      value: Do not include credentials, wallet keys, raw provider IDs, card data, or recovery references.
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What happened?
+      description: Include the route, visible truth label, and expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Give the smallest safe sequence that reproduces the problem.
+      placeholder: |
+        1. Open ...
+        2. Click ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: dropdown
+    id: evidence_mode
+    attributes:
+      label: Evidence mode
+      options:
+        - Public guided fixture
+        - Local fixture
+        - Rain Sandbox (redacted evidence only)
+        - Monad Testnet (redacted evidence only)
+        - Unknown
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser, operating system, and commit or deployment URL. Do not paste environment-variable values.
+    validations:
+      required: true

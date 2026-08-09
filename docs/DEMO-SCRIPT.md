@@ -1,50 +1,52 @@
 # SpendForge judged demo script
 
-**Target:** 75–80 seconds
-**Status:** Recording-ready script; no video has been recorded or published.
-**Truth gate:** The build has one durable live OpenAI proposal, a guided
-walkthrough, a proven Preview-only operation journal, and a completed Rain
-Sandbox simulated purchase. Rain issued and read back a scoped virtual card,
-accepted the 12-cent authorization and settlement, and direct GET returned
-completed with every causal field matched. Historical
-funding remains an uncorrelated HTTP 202 acknowledgment. Monad `/supported`
-passed read-only; no testnet payment occurred.
+**Target:** 70-75 seconds
+
+**Status:** Recording-ready script; no video is claimed as published.
+
+**Truth gate:** one live bounded OpenAI proposal, one completed simulated Rain
+Sandbox spend with exact readback, a guided fixture walkthrough, and a read-only
+Monad capability check. No Monad payment occurred.
 
 ## Click and narration track
 
 | Time | Screen and action | Narration |
 |---:|---|---|
-| 0–8s | `/` — hold on the scope and proof posture | “SpendForge lets agents procure small, preapproved digital resources—APIs, datasets, compute, and licenses—inside a human-set mandate.” |
-| 8–20s | Open `/ledger#live-agent-decision-evidence`; expand the model receipt | “This is one actual bounded OpenAI proposal: Pulse, one-cent maximum, strict structured output. Deterministic policy rechecked the quote, vendor, evidence, and budget; the model never received a payment tool.” |
-| 20–34s | Open `/missions/atlas-launch-v1`; click **Run mission** | “The recording-safe mission is a labeled fixture. It shows the full decision contract: one useful resource selected, a lower-fit option declined, and unsafe or over-budget offers blocked before payment.” |
-| 34–50s | Open **Rain proof** | “Rain issued a single-purpose virtual card for the approved 12-cent purchase, then accepted the authorization and settlement.” |
-| 50–63s | Open `/ledger#rain-provider-evidence` and download the receipt | “Direct transaction readback returned completed with the expected card, user, merchant, MCC, amount, and currency. The sandbox result is closed with an auditable receipt.” |
-| 63–71s | Point to Monad and fixture delivery states | “Monad's live read-only capability check passed, but wallet and test-asset configuration is absent. No payment or paid delivery is claimed.” |
-| 71–78s | Open the artifact proof strip | “The result is an auditable microprocurement loop with progressive disclosure and a credible safe fallback when a provider drifts.” |
+| 0-8s | `/` - hold on the category and proof posture | "SpendForge is autonomous microprocurement for APIs, datasets, compute, and licenses inside a human-set mandate." |
+| 8-19s | Click **View live decision** and expand the model receipt | "This is one actual bounded OpenAI proposal: Pulse at a one-cent maximum. Deterministic policy rechecked quote, vendor, evidence, and budget; the model never received a payment tool." |
+| 19-34s | Open `/missions/atlas-launch-v1`; click **Run guided demo** | "The public mission is a safe guided walkthrough of the combined contract: the agent selects a useful resource, declines a weaker fit, and policy blocks unsafe or over-budget offers before payment." |
+| 34-48s | Open the Rain proof | "Rain issued a single-purpose virtual card for a separate 12-cent Sandbox purchase, then accepted authorization and settlement." |
+| 48-61s | Open `/ledger#rain-provider-evidence`; download the receipt | "Exact direct readback returned completed with matching card, user, merchant, MCC, amount, currency, and spend type. SpendForge closes the ledger only on that provider record." |
+| 61-68s | Point to the Monad state | "The x402 v2 buyer and seller path is implemented and contract-tested. Its read-only capability check passed, but no live Monad payment is claimed." |
+| 68-75s | Return to the proof posture | "The agent decides. Policy constrains it. Rain executes the payment. SpendForge proves the result." |
 
 ## Required visible and spoken labels
 
 - Say and show `Rain Sandbox`.
 - Say and show `Monad Testnet` while stating that payment remains unproven.
 - Say `one live bounded model proposal` and show its durable receipt.
-- Say `fixture walkthrough` before starting the animated mission.
+- Say `guided fixture walkthrough` before starting the animated mission.
 - Keep `Synthetic mission` and the artifact truth bar visible.
-- Say `authorization accepted; settlement blocked`, not `transaction completed`.
-- Never say “money moved,” “funding completed,” “cap verified,”
-  “settled,” or “both rails are live.”
+- Say `completed simulated Rain Sandbox spend` while the completed receipt is
+  visible.
+- Never say `production funds moved`, `funding completed`, `cap verified`, or
+  `both rails are live`.
 
-## Product scope line
+The live OpenAI proposal and completed Rain purchase are separately proven
+boundaries; do not narrate them as one canonical live run.
+
+## Product scope
 
 SpendForge is for low-value, preapproved, machine-deliverable purchases. It is
-not a replacement for negotiated contracts, legal/tax review, vendor
+not a replacement for negotiated contracts, legal or tax review, vendor
 onboarding, enterprise seats, renewals, or cancellations. Northstar is a
-synthetic programmatic merchant whose licensing API returns a versioned digital
-asset manifest; no browser checkout is claimed.
+synthetic programmatic merchant whose API returns a versioned digital asset
+manifest; no browser checkout is claimed.
 
 ## Safe interruption branch
 
-If a provider is unavailable, open the matching labeled failure view, explain
-the frozen dependent action, and use the fixture walkthrough. A fixture is not
-a verified replay. For non-API merchants, describe the future authenticated
-`requiresHuman` handoff in [Checkout Operator](./CHECKOUT-OPERATOR.md); do not
-imply that MCP bypasses CAPTCHA, 3DS, fraud checks, login, or terms acceptance.
+If a provider is unavailable, use the labeled fixture walkthrough and explain
+the frozen dependent action. A fixture is not a verified replay. For non-API
+merchants, describe the future authenticated `requiresHuman` handoff in
+[Checkout Operator](./CHECKOUT-OPERATOR.md); MCP does not bypass CAPTCHA, 3DS,
+fraud checks, login, or terms acceptance.

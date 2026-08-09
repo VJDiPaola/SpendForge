@@ -1,5 +1,11 @@
 # Provider integration preflight
 
+> **Historical pre-completion record.** This document preserves the provider
+> preflight and the earlier ambiguous Rain attempt. A later independent bounded
+> flow reached exact `spend.status=completed`; see
+> [Rain workflow verdict](./RAIN-WORKFLOW-VERDICT.md) and the
+> [completed public receipt](https://spendforge.vercel.app/api/audit/receipts/audit_rain_northstar_completed_20260809_v1).
+
 **Checked:** August 9, 2026
 
 A configured environment is not provider proof. Every provider write requires

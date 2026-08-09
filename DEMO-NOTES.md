@@ -38,7 +38,7 @@ All operations below used protected Preview-scoped Rain variables, fresh operati
 - The readback exposed limit fields, but their values were neither persisted nor compared. It therefore does **not** independently prove that the 12-USDC-cent cap was applied, even though that cap was present in the submitted request.
 - **Historical-card truth:** issuance and active virtual status are provider-confirmed for that matched card/user. Its cap enforcement and spend were not proven.
 
-### Recording-build card authorization
+### Superseded ambiguous card authorization
 
 - A fresh exact-attempt operation durably claimed a new scoped-card issuance,
   requested 12 USDC cents plus MCC `5734`, encrypted the recoverable card
@@ -54,19 +54,36 @@ All operations below used protected Preview-scoped Rain variables, fresh operati
   case/outer-whitespace-only normalization.
 - SpendForge durably claimed and submitted **exactly one settlement POST**. Rain
   returned HTTP 400, and three bounded exact readbacks remained nonterminal.
-  The outcome is provider-ambiguous: there is no completed-spend or money-
-  movement claim, and the settlement will not be retried. All Rain execution
-  routes were removed and every gate is closed in the final build.
+  That transaction remains a historical ambiguous attempt and was never
+  retried.
+
+### Completed bounded card purchase
+
+- A separate fresh Sandbox flow issued and directly read back an active virtual
+  card for the configured user.
+- Rain accepted a 12-USD-cent authorization for Northstar Synthetic, MCC `5734`.
+- SpendForge submitted settlement with the observed Sandbox-required
+  `{ "amount": 12 }` body. Rain returned HTTP 200.
+- Exact direct transaction readback matched transaction, card, user, type,
+  amount, currency, merchant, MCC, and virtual-card type, then returned
+  `spend.status=completed`.
+- This proves one completed **simulated Rain Sandbox spend**. It does not prove
+  production funds, the historical funding acknowledgment, or the requested
+  card cap. All Rain execution routes were removed and every gate is closed in
+  the final build.
 
 ### Request and closure boundary
 
 - Funding v3: one funding mutation, one transaction-list GET, zero detail GETs, and no dependent card/authorization/settlement calls.
 - Scoped card: one issue mutation and one direct card GET.
-- Recording and reconciliation phases: three Rain mutations (card issue,
+- Superseded recording and reconciliation phases: three Rain mutations (card issue,
   authorization, and one settlement submission), plus the bounded exact reads
   recorded by the durable receipt. No new funding call occurred. The final
   settlement branch used one reconciliation GET, one settlement POST, and three
   terminal-status GETs; it stopped nonterminal and made no retry.
+- Completed bounded flow: three distinct mutations (card issue, authorization,
+  settlement), authoritative card/transaction reads, and one terminal exact
+  transaction record. The public receipt contains only redacted evidence.
 - OpenAI recording phase: one Responses API call, 1,617 total tokens, no tools,
   no retry, and zero payment-provider calls from that decision path.
 - Monad recording phase: one read-only facilitator `/supported` call, zero RPC,
@@ -100,7 +117,7 @@ A prepared fixture or replay does not prove a live integration.
 | Element | Current status | Evidence boundary |
 |---|---|---|
 | Rain scoped card | Provider-confirmed in workshop sandbox | Direct GET matched card/user and active virtual status; submitted cap not independently verified |
-| Rain funding and spend | Partial / provider-ambiguous; no completed-spend proof | Funding HTTP 202 had no correlation. Card and authorization evidence are durable. One settlement POST returned HTTP 400 and three exact readbacks stayed nonterminal; no retry is permitted. |
+| Rain funding and spend | Completed simulated spend; historical funding still uncorrelated | A separate bounded flow reached exact `spend.status=completed` for 12 cents with all causal fields matched. The earlier HTTP 400 transaction remains ambiguous and was not retried. |
 | Monad x402 payment | Unproven | Live read-only `/supported` capability passed; protected seller and contract tests are ready, but no wallet, RPC, payment, chain receipt, or paid delivery occurred. |
 | Bounded agent proposal | One live model proof plus fixture fallback | One strict `gpt-5.6-terra` proposal was durably recorded and policy-verified; the animated mission remains a labeled fixture. |
 | Provider-operation durability | Proven on protected Preview | Restricted Neon runtime role, concurrent CAS winner/duplicate block, and cross-connection persistence; zero provider calls |

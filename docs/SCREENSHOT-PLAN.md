@@ -1,5 +1,9 @@
 # SpendForge screenshot plan
 
+> **Archive note.** This is the pre-completion capture plan. The current public
+> proof posture is shown in [`01-proof-posture.png`](./screenshots/01-proof-posture.png);
+> superseded safe-stop frames are not linked from the primary README.
+
 **Status:** Captured August 9, 2026 from the verified local production build.
 Screenshots are product presentation evidence, not independent provider proof.
 **Viewport:** 1440×900 at 100% zoom.

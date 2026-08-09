@@ -1,5 +1,10 @@
 # SpendForge backup video plan
 
+> **Historical pre-completion plan.** The final public evidence now includes a
+> completed simulated Rain Sandbox spend with exact readback. Use the current
+> [demo script](./DEMO-SCRIPT.md) for recording; the partial-Rain wording below
+> is retained only as a fallback-history record.
+
 **Status:** Plan only. Recording and publication require separate authorization.
 **Target:** A 60–90 second local backup matching the judged demo script without rewriting provider chronology.
 
