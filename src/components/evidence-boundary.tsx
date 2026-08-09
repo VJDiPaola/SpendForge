@@ -19,9 +19,9 @@ const evidenceRows = [
   },
   {
     label: "Rain Sandbox",
-    state: "Partial evidence",
+    state: "Completed proof",
     tone: "rain",
-    detail: "Card and authorization evidence matched. One settlement POST returned HTTP 400 and three readbacks stayed nonterminal; no completed spend is claimed.",
+    detail: "A scoped virtual card, 12-cent authorization, settlement, and exact completed transaction readback are attached as redacted sandbox evidence.",
   },
   {
     label: "Monad Testnet",
