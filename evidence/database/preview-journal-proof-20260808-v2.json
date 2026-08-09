@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "proofId": "preview_journal_proof_20260808_v2",
+  "recordedAt": "2026-08-09T03:26:41.523Z",
+  "environment": "vercel-preview",
+  "deploymentProtected": true,
+  "synthetic": true,
+  "truthBoundary": "database-persistence-proof-only",
+  "runtimeRoleMatched": true,
+  "schemaReady": true,
+  "permissions": {
+    "select": true,
+    "insert": true,
+    "update": false,
+    "delete": false,
+    "truncate": false,
+    "schemaCreate": false,
+    "temporaryTables": false
+  },
+  "concurrentClaims": {
+    "winners": 1,
+    "blocked": 1
+  },
+  "persistedAcrossConnections": true,
+  "syntheticEntriesPersisted": 2,
+  "providerGatesClosed": true,
+  "providerCalls": 0,
+  "modelCalls": 0,
+  "disclosure": "This proves the Preview journal schema, restricted runtime role, append-only CAS behavior, and cross-connection persistence. It does not prove canonical mission persistence, Rain or Monad activity, payment, delivery, or a live OpenAI decision."
+}

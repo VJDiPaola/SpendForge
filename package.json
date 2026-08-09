@@ -1,0 +1,47 @@
+{
+  "name": "spendforge",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "serve:e2e": "next start --hostname 127.0.0.1 --port 3100",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --configLoader runner --root .",
+    "test:contract": "vitest run --configLoader runner --root . tests/contract",
+    "test:integration": "vitest run --configLoader runner --root . tests/integration",
+    "test:watch": "vitest --configLoader runner --root .",
+    "playwright:test": "playwright test",
+    "test:e2e": "playwright test",
+    "verify:public": "node scripts/check-public-history.mjs",
+    "verify": "npm run lint && npm run typecheck && npm run test && npm run verify:public && npm run build"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "1.1.0",
+    "@x402/core": "2.21.0",
+    "@x402/evm": "2.21.0",
+    "@x402/fetch": "2.21.0",
+    "@x402/next": "2.21.0",
+    "next": "16.3.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "server-only": "0.0.1",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "@types/node": "26.2.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.3.0",
+    "typescript": "5.9.3",
+    "vite": "7.3.6",
+    "vitest": "4.1.10"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

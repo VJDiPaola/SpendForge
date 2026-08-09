@@ -1,0 +1,396 @@
+{
+  "schemaVersion": 1,
+  "evidenceMode": "live-sandbox",
+  "redacted": true,
+  "disclosure": "Synthetic Rain sandbox operations only. A provider mutation is not terminal proof without its matching authoritative readback.",
+  "entries": [
+    {
+      "sequence": 1,
+      "operationRef": "op_rain_collateral_read_20260808_v2",
+      "relatedIdempotencyFingerprint": "sha256:67b823c382ab1d33945e2fe3984544dc70da6589eebeeef26ad02404eeae1b2b",
+      "occurredAt": "2026-08-08T23:31:53.847Z",
+      "provider": "rain",
+      "mode": "live-sandbox",
+      "operation": "rain.list_transactions",
+      "endpoint": "/issuing/transactions",
+      "mutation": false,
+      "state": "closed",
+      "truthBoundary": "sandbox-unconfirmed",
+      "authoritativeReadback": {
+        "state": "no-match",
+        "providerState": "not-observed",
+        "matchCodes": [
+          "TIME_WINDOW_APPLIED",
+          "AMOUNT_100000_CENTS_FILTERED",
+          "USD_COLLATERAL_FILTERED",
+          "NO_CANDIDATE"
+        ]
+      },
+      "requestCount": {
+        "list": 1,
+        "detail": 0,
+        "mutation": 0
+      },
+      "deploymentState": "removed"
+    },
+    {
+      "sequence": 2,
+      "entryRef": "entry_56f66e89018fa472d3147503",
+      "operationRef": "op_rain_fund_async_20260808_v3",
+      "occurredAt": "2026-08-08T23:33:27.026Z",
+      "provider": "rain",
+      "mode": "live-sandbox",
+      "operation": "rain.fund_collateral",
+      "endpoint": "/simulate/collateral/fund",
+      "mutation": true,
+      "state": "planned",
+      "truthBoundary": "sandbox-unconfirmed",
+      "idempotencyFingerprint": "sha256:9d59d594c025d97c6703e3a3773f9014ac0c1980582d88a37b085f5dee72899f",
+      "amount": {
+        "amount": "100000",
+        "decimals": 2,
+        "asset": "rUSD",
+        "network": "rain-sandbox"
+      },
+      "authoritativeReadback": {
+        "state": "not-started",
+        "providerState": "not-observed",
+        "matchCodes": []
+      },
+      "evidenceCodes": ["OPERATION_PLANNED"]
+    },
+    {
+      "sequence": 3,
+      "entryRef": "entry_cc9f2a1dd4def679247af621",
+      "operationRef": "op_rain_fund_async_20260808_v3",
+      "occurredAt": "2026-08-08T23:33:27.026Z",
+      "provider": "rain",
+      "mode": "live-sandbox",
+      "operation": "rain.fund_collateral",
+      "endpoint": "/simulate/collateral/fund",
+      "mutation": true,
+      "state": "gate-passed",
+      "truthBoundary": "sandbox-unconfirmed",
+      "idempotencyFingerprint": "sha256:9d59d594c025d97c6703e3a3773f9014ac0c1980582d88a37b085f5dee72899f",
+      "amount": {
+        "amount": "100000",
+        "decimals": 2,
+        "asset": "rUSD",
+        "network": "rain-sandbox"
+      },
+      "authoritativeReadback": {
+        "state": "not-started",
+        "providerState": "not-observed",
+        "matchCodes": []
+      },
+      "evidenceCodes": ["GUARD_ALLOWED", "ONE_ATTEMPT_GATE"]
+    },
+    {
+      "sequence": 4,
+      "entryRef": "entry_25f2bb725d5cb2d9f251ff00",
+      "operationRef": "op_rain_fund_async_20260808_v3",
+      "occurredAt": "2026-08-08T23:33:27.026Z",
+      "provider": "rain",
+      "mode": "live-sandbox",
+      "operation": "rain.fund_collateral",
+      "endpoint": "/simulate/collateral/fund",
+      "mutation": true,
+      "state": "submitted",
+      "truthBoundary": "sandbox-unconfirmed",
+      "idempotencyFingerprint": "sha256:9d59d594c025d97c6703e3a3773f9014ac0c1980582d88a37b085f5dee72899f",
+      "amount": {
+        "amount": "100000",
+        "decimals": 2,
+        "asset": "rUSD",
+        "network": "rain-sandbox"
+      },
+      "authoritativeReadback": {
+        "state": "not-started",
+        "providerState": "not-observed",
+        "matchCodes": []
+      },
+      "evidenceCodes": ["MUTATION_SUBMITTED"]
+    },
+    {
+      "sequence": 5,
+      "entryRef": "entry_2dd578c082746ad482d5ec1e",
+      "operationRef": "op_rain_fund_async_20260808_v3",
+      "occurredAt": "2026-08-08T23:33:28.445Z",
+      "provider": "rain",
+      "mode": "live-sandbox",
+      "operation": "rain.fund_collateral",
+      "endpoint": "/simulate/collateral/fund",
+      "mutation": true,
+      "state": "provider-accepted",
+      "truthBoundary": "sandbox-unconfirmed",
+      "idempotencyFingerprint": "sha256:9d59d594c025d97c6703e3a3773f9014ac0c1980582d88a37b085f5dee72899f",
+      "amount": {
+        "amount": "100000",
+        "decimals": 2,
+        "asset": "rUSD",
+        "network": "rain-sandbox"
+      },
+      "providerHttpStatus": 202,
+      "providerRequestRef": null,
+      "providerCorrelationRef": null,
+      "responseShape": {
+        "rootType": "object",
+        "fields": [
+          {
+            "path": "success",
+            "type": "boolean"
+          }
+        ],
+        "omittedSensitiveFieldCount": 0,
+        "truncated": false
+      },
+      "authoritativeReadback": {
+        "state": "not-started",
+        "providerState": "not-observed",
+        "matchCodes": []
+      },
+      "evidenceCodes": ["HTTP_202_ACCEPTED", "DIRECT_READBACK_REQUIRED"],
+      "requestCount": {
+        "fundMutation": 1,
+        "otherProvider": 0
+      },
+      "deploymentState": "removed"
+    },
+    {
+      "sequence": 6,
+      "operationRef": "op_rain_collateral_read_20260808_v3",
+      "relatedIdempotencyFingerprint": "sha256:9d59d594c025d97c6703e3a3773f9014ac0c1980582d88a37b085f5dee72899f",
+      "occurredAt": "2026-08-08T23:36:35.321Z",
+      "provider": "rain",
+      "mode": "live-sandbox",
+      "operation": "rain.list_transactions",
+      "endpoint": "/issuing/transactions",
+      "mutation": false,
+      "state": "closed",
+      "truthBoundary": "sandbox-unconfirmed",
+      "authoritativeReadback": {
+        "state": "no-match",
+        "providerState": "not-observed",
+        "matchCodes": [
+          "FUNDING_V3_TIME_WINDOW_APPLIED",
+          "AMOUNT_100000_CENTS_FILTERED",
+          "USD_COLLATERAL_FILTERED",
+          "NO_CANDIDATE"
+        ]
+      },
+      "requestCount": {
+        "list": 1,
+        "detail": 0,
+        "mutation": 0
+      },
+      "deploymentState": "removed"
+    },
+    {
+      "sequence": 7,
+      "entryRef": "entry_9826b1c05ae4138e7aa8516f",
+      "operationRef": "op_rain_card_issue_20260808_v2",
+      "occurredAt": "2026-08-08T23:37:53.975Z",
+      "provider": "rain",
+      "mode": "live-sandbox",
+      "operation": "rain.issue_scoped_card",
+      "endpoint": "/issuing/users/{userId}/cards/scoped",
+      "mutation": true,
+      "state": "planned",
+      "truthBoundary": "sandbox-unconfirmed",
+      "idempotencyFingerprint": "sha256:983ca5a1182877be3a0436ca861d026b0be642848a2cea3830cfc901ce96a8e1",
+      "amount": {
+        "amount": "12",
+        "decimals": 2,
+        "asset": "USDC",
+        "network": "rain-sandbox"
+      },
+      "authoritativeReadback": {
+        "state": "not-started",
+        "providerState": "not-observed",
+        "matchCodes": []
+      },
+      "evidenceCodes": ["OPERATION_PLANNED"]
+    },
+    {
+      "sequence": 8,
+      "entryRef": "entry_48324b7da0031ba8e9c96256",
+      "operationRef": "op_rain_card_issue_20260808_v2",
+      "occurredAt": "2026-08-08T23:37:53.975Z",
+      "provider": "rain",
+      "mode": "live-sandbox",
+      "operation": "rain.issue_scoped_card",
+      "endpoint": "/issuing/users/{userId}/cards/scoped",
+      "mutation": true,
+      "state": "gate-passed",
+      "truthBoundary": "sandbox-unconfirmed",
+      "idempotencyFingerprint": "sha256:983ca5a1182877be3a0436ca861d026b0be642848a2cea3830cfc901ce96a8e1",
+      "amount": {
+        "amount": "12",
+        "decimals": 2,
+        "asset": "USDC",
+        "network": "rain-sandbox"
+      },
+      "authoritativeReadback": {
+        "state": "not-started",
+        "providerState": "not-observed",
+        "matchCodes": []
+      },
+      "evidenceCodes": ["GUARD_ALLOWED", "ONE_ATTEMPT_GATE"]
+    },
+    {
+      "sequence": 9,
+      "entryRef": "entry_e34922a3c769c91e64e5e068",
+      "operationRef": "op_rain_card_issue_20260808_v2",
+      "occurredAt": "2026-08-08T23:37:53.975Z",
+      "provider": "rain",
+      "mode": "live-sandbox",
+      "operation": "rain.issue_scoped_card",
+      "endpoint": "/issuing/users/{userId}/cards/scoped",
+      "mutation": true,
+      "state": "submitted",
+      "truthBoundary": "sandbox-unconfirmed",
+      "idempotencyFingerprint": "sha256:983ca5a1182877be3a0436ca861d026b0be642848a2cea3830cfc901ce96a8e1",
+      "amount": {
+        "amount": "12",
+        "decimals": 2,
+        "asset": "USDC",
+        "network": "rain-sandbox"
+      },
+      "authoritativeReadback": {
+        "state": "not-started",
+        "providerState": "not-observed",
+        "matchCodes": []
+      },
+      "evidenceCodes": ["MUTATION_SUBMITTED", "CAP_12_USDC_CENTS"]
+    },
+    {
+      "sequence": 10,
+      "entryRef": "entry_6700ef8889301d2deb350f0e",
+      "operationRef": "op_rain_card_issue_20260808_v2",
+      "occurredAt": "2026-08-08T23:37:57.472Z",
+      "provider": "rain",
+      "mode": "live-sandbox",
+      "operation": "rain.issue_scoped_card",
+      "endpoint": "/issuing/users/{userId}/cards/scoped",
+      "mutation": true,
+      "state": "provider-accepted",
+      "truthBoundary": "sandbox-unconfirmed",
+      "idempotencyFingerprint": "sha256:983ca5a1182877be3a0436ca861d026b0be642848a2cea3830cfc901ce96a8e1",
+      "amount": {
+        "amount": "12",
+        "decimals": 2,
+        "asset": "USDC",
+        "network": "rain-sandbox"
+      },
+      "providerHttpStatus": 200,
+      "providerCorrelationRef": "card:4432...fe71",
+      "responseShape": {
+        "rootType": "object",
+        "fields": [
+          { "path": "id", "type": "string" },
+          { "path": "last4", "type": "string" },
+          { "path": "expirationMonth", "type": "string" },
+          { "path": "expirationYear", "type": "string" },
+          { "path": "status", "type": "string" }
+        ],
+        "omittedSensitiveFieldCount": 2,
+        "truncated": false
+      },
+      "authoritativeReadback": {
+        "state": "not-started",
+        "providerState": "not-observed",
+        "matchCodes": []
+      },
+      "evidenceCodes": ["CARD_RESPONSE_VALIDATED", "DIRECT_READBACK_REQUIRED"]
+    },
+    {
+      "sequence": 11,
+      "entryRef": "entry_4f5a1ec4f5c49527c6a0d592",
+      "operationRef": "op_rain_card_issue_20260808_v2",
+      "occurredAt": "2026-08-08T23:37:57.472Z",
+      "provider": "rain",
+      "mode": "live-sandbox",
+      "operation": "rain.issue_scoped_card",
+      "endpoint": "/issuing/users/{userId}/cards/scoped",
+      "mutation": true,
+      "state": "readback-pending",
+      "truthBoundary": "sandbox-unconfirmed",
+      "idempotencyFingerprint": "sha256:983ca5a1182877be3a0436ca861d026b0be642848a2cea3830cfc901ce96a8e1",
+      "amount": {
+        "amount": "12",
+        "decimals": 2,
+        "asset": "USDC",
+        "network": "rain-sandbox"
+      },
+      "authoritativeReadback": {
+        "state": "pending",
+        "observedAt": "2026-08-08T23:37:57.472Z",
+        "providerState": "pending",
+        "matchCodes": ["DIRECT_CARD_READBACK_STARTED"]
+      },
+      "evidenceCodes": ["DIRECT_CARD_READBACK_STARTED"]
+    },
+    {
+      "sequence": 12,
+      "entryRef": "entry_ed08a91734961129bc9a1cf9",
+      "operationRef": "op_rain_card_issue_20260808_v2",
+      "occurredAt": "2026-08-08T23:37:57.592Z",
+      "provider": "rain",
+      "mode": "live-sandbox",
+      "operation": "rain.issue_scoped_card",
+      "endpoint": "/issuing/users/{userId}/cards/scoped",
+      "mutation": true,
+      "state": "provider-confirmed",
+      "truthBoundary": "sandbox-authoritative",
+      "idempotencyFingerprint": "sha256:983ca5a1182877be3a0436ca861d026b0be642848a2cea3830cfc901ce96a8e1",
+      "amount": {
+        "amount": "12",
+        "decimals": 2,
+        "asset": "USDC",
+        "network": "rain-sandbox"
+      },
+      "providerHttpStatus": 200,
+      "providerCorrelationRef": "card:4432...fe71",
+      "responseShape": {
+        "rootType": "object",
+        "fields": [
+          { "path": "id", "type": "string" },
+          { "path": "userId", "type": "string" },
+          { "path": "type", "type": "string" },
+          { "path": "status", "type": "string" },
+          { "path": "last4", "type": "string" },
+          { "path": "expirationMonth", "type": "string" },
+          { "path": "expirationYear", "type": "string" },
+          { "path": "limit", "type": "object" },
+          { "path": "limit.amount", "type": "number" },
+          { "path": "limit.frequency", "type": "string" },
+          { "path": "configuration", "type": "object" },
+          { "path": "configuration.currency", "type": "string" },
+          { "path": "tokenWallets", "type": "array" },
+          { "path": "createdAt", "type": "string" },
+          { "path": "updatedAt", "type": "string" }
+        ],
+        "omittedSensitiveFieldCount": 0,
+        "truncated": false
+      },
+      "authoritativeReadback": {
+        "state": "matched-terminal",
+        "observedAt": "2026-08-08T23:37:57.592Z",
+        "providerState": "completed",
+        "matchCodes": ["CARD_ID_MATCH", "USER_ID_MATCH"]
+      },
+      "evidenceCodes": ["CARD_ID_MATCH", "USER_ID_MATCH", "CARD_ISSUANCE_CONFIRMED"],
+      "verifiedProviderState": {
+        "status": "active",
+        "cardType": "virtual",
+        "capBoundary": "12 USDC cents enforced in the submitted request; readback limit fields were observed but their values were neither persisted nor compared"
+      },
+      "requestCount": {
+        "issueMutation": 1,
+        "cardReadback": 1,
+        "otherProvider": 0
+      },
+      "deploymentState": "removed"
+    }
+  ]
+}

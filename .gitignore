@@ -1,0 +1,27 @@
+.env
+.env.*
+!.env.example
+.next/
+node_modules/
+coverage/
+playwright-report/
+test-results/
+output/playwright/
+tmp/
+.vercel/
+*.log
+*.tsbuildinfo
+*.pem
+*.key
+*.p12
+*.pfx
+*.sqlite
+*.sqlite3
+*.sqlite-*
+
+# Private source archive guard. Organizer references are preserved outside the
+# repository and must never be recommitted.
+raingentic-hackathon-starter-kit.pdf
+raingentic-monad-builder-one-pager.pdf
+raingentic-hackathon-5-ideas
+SpendForge-Private-Reference-Archive*/
