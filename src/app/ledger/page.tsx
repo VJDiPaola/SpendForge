@@ -16,7 +16,7 @@ import {
 import {
   RAIN_NORTHSTAR_PROOF_RECEIPT_ID,
   readRainNorthstarAttemptReceipt,
-} from "@/lib/integrations/rain/northstar-proof";
+} from "@/lib/integrations/rain/northstar";
 import { RAIN_COMPLETED_SPEND_RECEIPT_ID } from "@/lib/operations";
 
 export const dynamic = "force-dynamic";

@@ -1,28 +1,13 @@
 import "server-only";
 
-import { createHmac, timingSafeEqual } from "node:crypto";
-
 import { z } from "zod";
 
-import { rainSandboxBaseUrlSchema } from "./base-url";
-import { generateRainSessionId } from "./session";
 import {
   appendDurableOperationState,
   buildAuditReceipt,
-  captureResponseShape,
-  claimDurableOperationAttempt,
-  deriveEvidenceFingerprint,
-  deriveIdempotencyFingerprint,
   maskProviderReference,
-  type AuditReceipt,
   type DurableOperationJournalStore,
-  type OperationEntryDraft,
   type OperationJournalEntry,
-  type OperationKind,
-  type PublicOperationRef,
-  type RecoveryReferenceKind,
-  type SafeEndpoint,
-  type SafeMoney,
 } from "@/lib/operations";
 import {
   decryptRecoveryReference,
@@ -30,249 +15,49 @@ import {
 } from "@/lib/operations/recovery";
 import { createRuntimeOperationJournalStore } from "@/lib/operations/postgres-store";
 
-export const RAIN_NORTHSTAR_PROOF_RECEIPT_ID =
-  "audit_rain_northstar_spend_live_v1";
-const configuredAttemptContext = () =>
-  process.env.RAIN_NORTHSTAR_AUTHORIZED_ATTEMPT_ID?.trim() || "fixture";
+import { rainSandboxBaseUrlSchema } from "../base-url";
+import { generateRainSessionId } from "../session";
 
-export const RAIN_NORTHSTAR_RUN_SCOPE = deriveEvidenceFingerprint(
-  `spendforge:atlas:rain-northstar-proof:v1:${configuredAttemptContext()}`,
-);
-
-const cardOperationRef = "op_rain_northstar_card_v1";
-const authorizeOperationRef = "op_rain_northstar_authorize_v1";
-const settleOperationRef = "op_rain_northstar_settle_v1";
-const resumeReadOperationRef = "op_rain_northstar_resume_read_v3";
-const merchantName = "Northstar Synthetic";
-const merchantCategoryCode = "5734";
-const purchaseAmount: SafeMoney = {
-  amount: "12",
-  decimals: 2,
-  asset: "USD",
-  network: "rain-sandbox",
-};
-const cardLimitAmount: SafeMoney = {
-  amount: "12",
-  decimals: 2,
-  asset: "USDC",
-  network: "rain-sandbox",
-};
-
-const proofEnvironmentSchema = z
-  .object({
-    VERCEL_ENV: z.literal("preview"),
-    RAIN_BASE_URL: rainSandboxBaseUrlSchema,
-    RAIN_API_KEY: z.string().trim().min(1),
-    RAIN_USER_ID: z.string().uuid(),
-    RAIN_CONTRACT_ID: z.string().uuid(),
-    RECOVERY_ENCRYPTION_KEY: z.string().trim().min(1),
-    RAIN_MUTATIONS_ENABLED: z.literal("true"),
-    RAIN_CARD_ISSUANCE_ENABLED: z.literal("true"),
-    RAIN_AUTHORIZATION_ENABLED: z.literal("true"),
-    RAIN_SETTLEMENT_ENABLED: z.literal("true"),
-    RAIN_NORTHSTAR_PROOF_WINDOW_OPEN: z.literal("true"),
-    RAIN_NORTHSTAR_AUTHORIZED_ATTEMPT_ID: z
-      .string()
-      .regex(/^rain-proof-[a-z0-9-]{12,80}$/),
-  })
-  .passthrough();
-
-const encryptedCardFieldSchema = z
-  .object({ iv: z.string().min(1), data: z.string().min(1) })
-  .strip();
-const cardIssueResponseSchema = z
-  .object({
-    id: z.string().uuid(),
-    encryptedPan: encryptedCardFieldSchema,
-    encryptedCvc: encryptedCardFieldSchema,
-    last4: z.string().length(4),
-    expirationMonth: z.union([z.string().min(1), z.number().int().positive()]),
-    expirationYear: z.union([z.string().min(1), z.number().int().positive()]),
-    status: z.enum(["notActivated", "active", "locked", "canceled"]),
-  })
-  .strip();
-const cardReadbackResponseSchema = z
-  .object({
-    id: z.string().uuid(),
-    userId: z.string().uuid(),
-    type: z.literal("virtual"),
-    status: z.literal("active"),
-    limit: z
-      .object({
-        amount: z.number().int().nonnegative(),
-        frequency: z.string().min(1),
-      })
-      .strip()
-      .optional(),
-    configuration: z
-      .object({ currency: z.string().min(1) })
-      .strip()
-      .optional(),
-  })
-  .strip();
-const simulatedTransactionResponseSchema = z
-  .object({
-    transactionId: z.string().uuid(),
-    status: z.enum(["authorized", "declined", "settled"]),
-    declinedReason: z.string().optional(),
-    completionReason: z.enum(["SETTLEMENT", "settlement", "REFUND", "refund"]).optional(),
-  })
-  .strip();
-const spendReadbackResponseSchema = z
-  .object({
-    // Rain's sandbox has returned identifier and enum variants that drift from
-    // the published OpenAPI. Parse the observed structural contract here, then
-    // enforce every causal value explicitly in requireExactSpend.
-    id: z.string().min(1),
-    type: z.string().min(1),
-    spend: z
-      .object({
-        amount: z.union([
-          z.number().finite().nonnegative(),
-          z.string().min(1).max(32),
-        ]),
-        currency: z.string().min(1),
-        receipt: z.boolean().optional(),
-        merchantName: z.string(),
-        merchantCategory: z.string().optional(),
-        merchantCategoryCode: z.string(),
-        cardId: z.string().min(1),
-        cardType: z.string().min(1),
-        userId: z.string().min(1),
-        userFirstName: z.string().optional(),
-        userEmail: z.string().optional(),
-        status: z.string().min(1),
-        declinedReason: z.string().optional(),
-        authorizedAt: z.string(),
-        postedAt: z.string().optional(),
-      })
-      .strip(),
-  })
-  .strip();
-
-type ProofConfig = z.infer<typeof proofEnvironmentSchema>;
-type ProviderCall = {
-  status: number;
-  ok: boolean;
-  payload: unknown;
-  responseShape: ReturnType<typeof captureResponseShape>;
-};
-
-const settlement400Codes = [
-  [/already settled/i, "SETTLE_400_ALREADY_SETTLED"],
-  [/already closed/i, "SETTLE_400_ALREADY_CLOSED"],
-  [/no card associated/i, "SETTLE_400_NO_CARD_ASSOCIATION"],
-  [/processor id/i, "SETTLE_400_NO_PROCESSOR_ID"],
-] as const;
-
-function classifySettlement400(payload: unknown): string {
-  const message =
-    typeof payload === "object" && payload !== null && "message" in payload
-      ? (payload as { message?: unknown }).message
-      : undefined;
-  if (typeof message !== "string") return "SETTLE_400_UNRECOGNIZED";
-  return (
-    settlement400Codes.find(([pattern]) => pattern.test(message))?.[1] ??
-    "SETTLE_400_UNRECOGNIZED"
-  );
-}
-
-export type RainNorthstarProofResult = {
-  receipt: AuditReceipt;
-  providerCalls: number;
-  mutationCalls: 3;
-  readbackCalls: number;
-  paymentClaim: "rain-sandbox-simulated-spend-completed";
-  fundingClaim: "prior-funding-remains-uncorrelated";
-  cardLimitClaim: "request-only" | "direct-readback-match" | "direct-readback-different";
-  truthBoundary: "sandbox-authoritative";
-};
-
-export class RainNorthstarProofError extends Error {
-  constructor(
-    readonly code: string,
-    readonly status: number,
-    readonly providerCalls = 0,
-  ) {
-    super(code);
-    this.name = "RainNorthstarProofError";
-  }
-}
-
-function exactValue(left: string, right: string): boolean {
-  const leftBytes = Buffer.from(left, "utf8");
-  const rightBytes = Buffer.from(right, "utf8");
-  return leftBytes.length === rightBytes.length && timingSafeEqual(leftBytes, rightBytes);
-}
-
-function providerIdempotencyKey(
-  operation: OperationKind,
-  fingerprint: string,
-  encodedRecoveryKey: string,
-): string {
-  return `sf-${createHmac("sha256", Buffer.from(encodedRecoveryKey, "base64"))
-    .update(`${operation}\u001f${fingerprint}`, "utf8")
-    .digest("hex")
-    .slice(0, 40)}`;
-}
-
-async function providerCall(input: {
-  config: Pick<ProofConfig, "RAIN_BASE_URL" | "RAIN_API_KEY">;
-  fetchImpl: typeof globalThis.fetch;
-  method: "GET" | "POST";
-  path: string;
-  body?: unknown;
-  idempotencyKey?: string;
-  sessionId?: string;
-}): Promise<ProviderCall> {
-  const headers = new Headers({
-    Accept: "application/json",
-    "Api-Key": input.config.RAIN_API_KEY,
-  });
-  if (input.body !== undefined) headers.set("Content-Type", "application/json");
-  if (input.idempotencyKey) headers.set("Idempotency-Key", input.idempotencyKey);
-  if (input.sessionId) headers.set("sessionid", input.sessionId);
-
-  let response: Response;
-  try {
-    response = await input.fetchImpl(`${input.config.RAIN_BASE_URL}${input.path}`, {
-      method: input.method,
-      headers,
-      body: input.body === undefined ? undefined : JSON.stringify(input.body),
-      cache: "no-store",
-      redirect: "error",
-      signal: AbortSignal.timeout(20_000),
-    });
-  } catch {
-    throw new RainNorthstarProofError("RAIN_PROVIDER_OUTCOME_AMBIGUOUS", 502, 1);
-  }
-  const payload = await response.json().catch(() => null);
-  return {
-    status: response.status,
-    ok: response.ok,
-    payload,
-    responseShape: captureResponseShape(payload),
-  };
-}
-
-const reconciliationEnvironmentSchema = z
-  .object({
-    VERCEL_ENV: z.literal("preview"),
-    RAIN_BASE_URL: rainSandboxBaseUrlSchema,
-    RAIN_API_KEY: z.string().trim().min(1),
-    RAIN_USER_ID: z.string().uuid(),
-    RECOVERY_ENCRYPTION_KEY: z.string().trim().min(1),
-    RAIN_NORTHSTAR_RECONCILIATION_WINDOW_OPEN: z.literal("true"),
-    RAIN_NORTHSTAR_RECONCILIATION_ATTEMPT_ID: z
-      .string()
-      .regex(/^rain-reconcile-[a-z0-9-]{12,80}$/),
-  })
-  .passthrough();
-
-const resumeEnvironmentSchema = reconciliationEnvironmentSchema.extend({
-  RAIN_MUTATIONS_ENABLED: z.literal("true"),
-  RAIN_SETTLEMENT_ENABLED: z.literal("true"),
-});
+import {
+  merchantCategoryCode,
+  merchantName,
+  resumeReadOperationRef,
+  RAIN_NORTHSTAR_PROOF_RECEIPT_ID,
+  RAIN_NORTHSTAR_RUN_SCOPE,
+} from "./constants";
+import {
+  cardIssueResponseSchema,
+  cardReadbackResponseSchema,
+  proofEnvironmentSchema,
+  reconciliationEnvironmentSchema,
+  resumeEnvironmentSchema,
+  simulatedTransactionResponseSchema,
+  spendReadbackResponseSchema,
+  type ParsedSpendReadback,
+} from "./schemas";
+import {
+  classifySettlement400,
+  exactValue,
+  providerCall,
+  providerIdempotencyKey,
+  RainNorthstarProofError,
+  type ProviderCall,
+} from "./provider";
+import {
+  claim,
+  draft,
+  durableStoreFor,
+  fingerprintFor,
+  recoveryEnvelope,
+  resumeReadDraft,
+} from "./journal";
+import { evaluateExactSpend, requireExactSpend } from "./spend";
+import {
+  normalizedProviderState,
+  openProviderState,
+  statusEvidenceCode,
+  type RainNorthstarProofResult,
+} from "./receipt";
 
 export function inspectRainReconciliationReadiness(
   source: Record<string, string | undefined> = process.env,
@@ -294,258 +79,6 @@ export function inspectRainReconciliationReadiness(
     ),
   };
   return { ...checks, ready: Object.values(checks).every(Boolean) };
-}
-
-const operationMetadata: Readonly<
-  Record<
-    "card" | "authorize" | "settle",
-    {
-      operationRef: PublicOperationRef;
-      operation: OperationKind;
-      endpoint: SafeEndpoint;
-      amount: SafeMoney;
-      offerRef: string;
-    }
-  >
-> = {
-  card: {
-    operationRef: cardOperationRef,
-    operation: "rain.issue_scoped_card",
-    endpoint: "/issuing/users/{userId}/cards/scoped",
-    amount: cardLimitAmount,
-    offerRef: "northstar_scoped_card",
-  },
-  authorize: {
-    operationRef: authorizeOperationRef,
-    operation: "rain.authorize_transaction",
-    endpoint: "/simulate/transactions/authorize",
-    amount: purchaseAmount,
-    offerRef: "offer_northstar_background_v1",
-  },
-  settle: {
-    operationRef: settleOperationRef,
-    operation: "rain.settle_transaction",
-    endpoint: "/simulate/transactions/{transactionId}/settle",
-    amount: purchaseAmount,
-    offerRef: "offer_northstar_background_v1_settlement",
-  },
-};
-
-const resumeReadMetadata = {
-  operationRef: resumeReadOperationRef as PublicOperationRef,
-  operation: "rain.read_transaction" as const,
-  endpoint: "/issuing/transactions/{transactionId}" as SafeEndpoint,
-  amount: purchaseAmount,
-};
-
-function fingerprintFor(kind: keyof typeof operationMetadata) {
-  const metadata = operationMetadata[kind];
-  return deriveIdempotencyFingerprint({
-    missionRef: "mission_atlas_launch_v1",
-    runRef: `run_atlas_rain_northstar_live_v1:${configuredAttemptContext()}`,
-    offerRef: metadata.offerRef,
-    provider: "rain",
-    operation: metadata.operation as
-      | "rain.issue_scoped_card"
-      | "rain.authorize_transaction"
-      | "rain.settle_transaction",
-    generation: 1,
-  });
-}
-
-function draft(
-  kind: keyof typeof operationMetadata,
-  input: Omit<
-    OperationEntryDraft,
-    | "operationRef"
-    | "provider"
-    | "mode"
-    | "operation"
-    | "endpoint"
-    | "mutation"
-    | "idempotencyFingerprint"
-    | "amount"
-  >,
-): OperationEntryDraft {
-  const metadata = operationMetadata[kind];
-  return {
-    operationRef: metadata.operationRef,
-    provider: "rain",
-    mode: "live-sandbox",
-    operation: metadata.operation,
-    endpoint: metadata.endpoint,
-    mutation: true,
-    idempotencyFingerprint: fingerprintFor(kind),
-    amount: metadata.amount,
-    ...input,
-  };
-}
-
-function resumeReadDraft(
-  input: Omit<
-    OperationEntryDraft,
-    | "operationRef"
-    | "provider"
-    | "mode"
-    | "operation"
-    | "endpoint"
-    | "mutation"
-    | "idempotencyFingerprint"
-    | "amount"
-  >,
-): OperationEntryDraft {
-  return {
-    operationRef: resumeReadMetadata.operationRef,
-    provider: "rain",
-    mode: "live-sandbox",
-    operation: resumeReadMetadata.operation,
-    endpoint: resumeReadMetadata.endpoint,
-    mutation: false,
-    amount: resumeReadMetadata.amount,
-    ...input,
-  };
-}
-
-async function claim(
-  kind: keyof typeof operationMetadata,
-  store: DurableOperationJournalStore,
-) {
-  const submitted = draft(kind, {
-    occurredAt: new Date().toISOString(),
-    state: "submitted",
-    truthBoundary: "sandbox-unconfirmed",
-    authoritativeReadback: {
-      state: "not-started",
-      providerState: "not-observed",
-      matchCodes: [],
-    },
-    evidenceCodes: [
-      "DURABLE_MUTATION_CLAIM",
-      "ONE_ATTEMPT_GATE",
-      "RUN_WIDE_CAP_CHECKED",
-    ],
-  });
-  const metadata = operationMetadata[kind];
-  const result = await claimDurableOperationAttempt({
-    store,
-    scopeFingerprint: RAIN_NORTHSTAR_RUN_SCOPE,
-    guard: {
-      provider: "rain",
-      mode: "live-sandbox",
-      mutationEnabled: true,
-      allowedOperation: metadata.operation as
-        | "rain.issue_scoped_card"
-        | "rain.authorize_transaction"
-        | "rain.settle_transaction",
-      maxMutations: 3,
-      oneAttemptOnly: true,
-      spendCap: metadata.amount,
-      cumulativeSpendCap: {
-        amount: "25",
-        decimals: 2,
-        asset: "USD",
-        network: "rain-sandbox",
-      },
-    },
-    request: {
-      operationRef: metadata.operationRef,
-      provider: "rain",
-      mode: "live-sandbox",
-      operation: metadata.operation as
-        | "rain.issue_scoped_card"
-        | "rain.authorize_transaction"
-        | "rain.settle_transaction",
-      attempt: 1,
-      idempotencyFingerprint: fingerprintFor(kind),
-      amount: metadata.amount,
-    },
-    submitted,
-  });
-  if (!result.decision.allowed) {
-    throw new RainNorthstarProofError("RAIN_PROOF_ALREADY_CLAIMED", 409);
-  }
-}
-
-function recoveryEnvelope(
-  journal: readonly OperationJournalEntry[],
-  kind: RecoveryReferenceKind,
-) {
-  return [...journal]
-    .reverse()
-    .find((entry) => entry.recoveryEnvelope?.kind === kind)?.recoveryEnvelope;
-}
-
-type ParsedSpendReadback = z.infer<typeof spendReadbackResponseSchema>;
-
-function classifySpendAmount(
-  amount: ParsedSpendReadback["spend"]["amount"],
-): "documented-minor-units" | "observed-major-units" | "mismatch" {
-  const canonical = typeof amount === "number" ? String(amount) : amount;
-  if (canonical === "12") return "documented-minor-units";
-  if (canonical === "0.12") return "observed-major-units";
-  return "mismatch";
-}
-
-function evaluateExactSpend(input: {
-  payload: ParsedSpendReadback;
-  transactionId: string;
-  cardId: string;
-  userId: string;
-}) {
-  const { payload, transactionId, cardId, userId } = input;
-  const amountEncoding = classifySpendAmount(payload.spend.amount);
-  const merchantNormalized =
-    payload.spend.merchantName.trim().toLocaleLowerCase("en-US") ===
-    merchantName.toLocaleLowerCase("en-US");
-  const currencyExact = payload.spend.currency === "USD";
-  const currencyNormalized = payload.spend.currency.trim().toUpperCase() === "USD";
-  const matchCodes = [
-    ...(payload.id === transactionId ? ["TRANSACTION_ID_MATCH"] : []),
-    ...(payload.type === "spend" ? ["TRANSACTION_TYPE_SPEND_MATCH"] : []),
-    ...(payload.spend.cardId === cardId ? ["CARD_ID_MATCH"] : []),
-    ...(payload.spend.userId === userId ? ["USER_ID_MATCH"] : []),
-    ...(amountEncoding === "documented-minor-units"
-      ? ["AMOUNT_12_USD_CENTS_MATCH"]
-      : amountEncoding === "observed-major-units"
-        ? ["AMOUNT_0_12_USD_OBSERVED_API_DRIFT"]
-        : []),
-    ...(currencyExact
-      ? ["CURRENCY_USD_MATCH"]
-      : currencyNormalized
-        ? ["CURRENCY_USD_CASE_VARIANT"]
-        : []),
-    ...(merchantNormalized ? ["MERCHANT_MATCH"] : []),
-    ...(payload.spend.merchantCategoryCode === merchantCategoryCode
-      ? ["MCC_5734_MATCH"]
-      : []),
-    ...(payload.spend.cardType === "virtual" ? ["CARD_TYPE_VIRTUAL"] : []),
-  ];
-  const requiredCodes = [
-    "TRANSACTION_ID_MATCH",
-    "TRANSACTION_TYPE_SPEND_MATCH",
-    "CARD_ID_MATCH",
-    "USER_ID_MATCH",
-    "MCC_5734_MATCH",
-    "CARD_TYPE_VIRTUAL",
-  ];
-  return {
-    amountEncoding,
-    matchCodes,
-    matchesAllCausalFields:
-      amountEncoding !== "mismatch" &&
-      merchantNormalized &&
-      currencyNormalized &&
-      requiredCodes.every((code) => matchCodes.includes(code)),
-  } as const;
-}
-
-function requireExactSpend(input: {
-  payload: z.infer<typeof spendReadbackResponseSchema>;
-  transactionId: string;
-  cardId: string;
-  userId: string;
-}) {
-  return evaluateExactSpend(input).matchesAllCausalFields;
 }
 
 export async function executeRainNorthstarProof(input: {
@@ -1065,103 +598,6 @@ export async function executeRainNorthstarProof(input: {
   };
 }
 
-export async function readRainNorthstarProof(
-  source: Record<string, string | undefined> = process.env,
-  store: DurableOperationJournalStore = createRuntimeOperationJournalStore(source),
-): Promise<RainNorthstarProofResult | null> {
-  let journal: readonly OperationJournalEntry[];
-  try {
-    journal = await store.read(RAIN_NORTHSTAR_RUN_SCOPE);
-  } catch {
-    throw new RainNorthstarProofError("RAIN_JOURNAL_UNAVAILABLE", 503);
-  }
-  const completed = [...journal]
-    .reverse()
-    .find(
-      (entry) =>
-        entry.operation === "rain.settle_transaction" &&
-        entry.state === "provider-confirmed" &&
-        entry.authoritativeReadback.state === "matched-terminal" &&
-        entry.authoritativeReadback.providerState === "completed",
-    );
-  if (!completed) return null;
-  const card = [...journal]
-    .reverse()
-    .find((entry) => entry.operation === "rain.issue_scoped_card" && entry.state === "provider-confirmed");
-  const cardCodes = card?.authoritativeReadback.matchCodes ?? [];
-  return {
-    receipt: buildAuditReceipt(
-      {
-        receiptId: RAIN_NORTHSTAR_PROOF_RECEIPT_ID,
-        generatedAt: completed.occurredAt,
-      },
-      journal,
-    ),
-    providerCalls: 0,
-    mutationCalls: 3,
-    readbackCalls: 0,
-    paymentClaim: "rain-sandbox-simulated-spend-completed",
-    fundingClaim: "prior-funding-remains-uncorrelated",
-    cardLimitClaim: cardCodes.includes("CAP_READBACK_MATCH")
-      ? "direct-readback-match"
-      : cardCodes.includes("CAP_READBACK_DIFFERENT")
-        ? "direct-readback-different"
-        : "request-only",
-    truthBoundary: "sandbox-authoritative",
-  };
-}
-
-export async function readRainNorthstarAttemptReceipt(
-  source: Record<string, string | undefined> = process.env,
-  store: DurableOperationJournalStore = createRuntimeOperationJournalStore(source),
-): Promise<AuditReceipt | null> {
-  const journal = await store.read(RAIN_NORTHSTAR_RUN_SCOPE);
-  if (journal.length === 0) return null;
-  return buildAuditReceipt(
-    {
-      receiptId: RAIN_NORTHSTAR_PROOF_RECEIPT_ID,
-      generatedAt: journal.at(-1)!.occurredAt,
-    },
-    journal,
-  );
-}
-
-function openProviderState(status: string) {
-  return status === "pending" || status === "authorized";
-}
-
-function normalizedProviderState(status: string) {
-  if (status === "completed") return "completed" as const;
-  if (openProviderState(status)) return "authorized" as const;
-  if (status === "declined") return "declined" as const;
-  if (status === "reversed") return "failed" as const;
-  return "unknown" as const;
-}
-
-function statusEvidenceCode(status: string) {
-  if (status === "pending") return "STATUS_PENDING";
-  if (status === "authorized") return "STATUS_AUTHORIZED";
-  if (status === "completed") return "STATUS_COMPLETED";
-  if (status === "declined") return "STATUS_DECLINED";
-  if (status === "reversed") return "STATUS_REVERSED";
-  return "STATUS_UNRECOGNIZED";
-}
-
-async function durableStoreFor(
-  source: Record<string, string | undefined>,
-  supplied?: DurableOperationJournalStore,
-) {
-  let store: DurableOperationJournalStore;
-  try {
-    store = supplied ?? createRuntimeOperationJournalStore(source);
-  } catch {
-    throw new RainNorthstarProofError("RAIN_JOURNAL_UNAVAILABLE", 503);
-  }
-  if (store.durability !== "durable") {
-    throw new RainNorthstarProofError("RAIN_RECONCILIATION_UNAVAILABLE", 503);
-  }
-  return store;
-}
 
 async function recoverRainNorthstarReferences(input: {
   store: DurableOperationJournalStore;
@@ -1760,3 +1196,5 @@ export async function executeRainNorthstarResume(input: {
     ),
   } as const;
 }
+
+export { RAIN_NORTHSTAR_RUN_SCOPE } from "./constants";

@@ -8,7 +8,7 @@ import {
   inspectRainNorthstarRecoveryContinuity,
   reconcileRainNorthstarAuthorization,
   RAIN_NORTHSTAR_RUN_SCOPE,
-} from "@/lib/integrations/rain/northstar-proof";
+} from "@/lib/integrations/rain/northstar/execute";
 import {
   OperationJournalPersistenceError,
   type DurableOperationJournalStore,

@@ -19,7 +19,7 @@ import {
 import {
   RAIN_NORTHSTAR_PROOF_RECEIPT_ID,
   readRainNorthstarAttemptReceipt,
-} from "@/lib/integrations/rain/northstar-proof";
+} from "@/lib/integrations/rain/northstar";
 import {
   MONAD_X402_PROOF_RECEIPT_ID,
   readMonadX402AuditReceipt,
