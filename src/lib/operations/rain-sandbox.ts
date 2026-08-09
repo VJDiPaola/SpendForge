@@ -95,7 +95,7 @@ export function buildRainCardAuditReceipt(): AuditReceipt {
   entries = append(entries, {
     occurredAt: "2026-08-08T23:37:53.975Z",
     state: "planned",
-    truthBoundary: "sandbox-unconfirmed",
+    truthBoundary: "sandbox-authoritative",
     authoritativeReadback: {
       state: "not-started",
       providerState: "not-observed",
@@ -158,7 +158,7 @@ export function buildRainCardAuditReceipt(): AuditReceipt {
   entries = append(entries, {
     occurredAt: "2026-08-08T23:37:57.592Z",
     state: "provider-confirmed",
-    truthBoundary: "sandbox-authoritative",
+    truthBoundary: "sandbox-unconfirmed",
     providerHttpStatus: 200,
     providerCorrelationRef: maskedCardReference,
     responseShape: cardReadbackShape,
@@ -226,7 +226,7 @@ export function buildRainCompletedSpendAuditReceipt(): AuditReceipt {
     amount: { amount: "12", decimals: 2, asset: "USD", network: "rain-sandbox" },
     occurredAt: "2026-08-09T15:05:14.727Z",
     state: "readback-pending",
-    truthBoundary: "sandbox-authoritative",
+    truthBoundary: "sandbox-unconfirmed",
     providerHttpStatus: 200,
     providerCorrelationRef: maskedReferenceSchema.parse("rain_transaction:b959...d76d"),
     authoritativeReadback: { state: "matched-nonterminal", observedAt: "2026-08-09T15:05:14.727Z", providerState: "authorized", matchCodes: ["TRANSACTION_ID_MATCH", "CARD_ID_MATCH", "USER_ID_MATCH", "AMOUNT_12_USD_CENTS_MATCH", "MERCHANT_MATCH", "MCC_5734_MATCH", "STATUS_PENDING"] },
