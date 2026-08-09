@@ -4,7 +4,7 @@ import { IntegrationUnavailableError } from "@/lib/integrations/errors";
 import type {
   X402Gateway,
   X402PayAndFetchInput,
-} from "@/lib/integrations/x402/contracts";
+} from "@/experimental/x402/contracts";
 
 export class UnavailableX402Gateway implements X402Gateway {
   private unavailable(): never {

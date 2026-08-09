@@ -35,7 +35,7 @@ import {
   createProtectedPreviewFetch,
   x402Fingerprint,
   type MonadX402SafetyConfig,
-} from "@/lib/integrations/x402";
+} from "@/experimental/x402";
 
 const buyerAddress = `0x${"1".repeat(40)}` as const;
 const sellerAddress = `0x${"2".repeat(40)}` as const;

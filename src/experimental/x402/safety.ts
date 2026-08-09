@@ -10,9 +10,9 @@ import {
   MONAD_TESTNET_USDC_ADDRESS,
   MONAD_X402_FACILITATOR_URL,
   SPENDFORGE_X402_PRICE_ATOMIC,
-} from "@/lib/integrations/x402/constants";
-import { hexAddressSchema, type HexAddress } from "@/lib/integrations/x402/contracts";
-import { X402AdapterError } from "@/lib/integrations/x402/errors";
+} from "@/experimental/x402/constants";
+import { hexAddressSchema, type HexAddress } from "@/experimental/x402/contracts";
+import { X402AdapterError } from "@/experimental/x402/errors";
 
 const enabledSchema = z.literal("true");
 const privateKeySchema = z.string().regex(/^0x[0-9a-fA-F]{64}$/);

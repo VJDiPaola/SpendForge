@@ -23,7 +23,7 @@ import {
 import {
   MONAD_X402_PROOF_RECEIPT_ID,
   readMonadX402AuditReceipt,
-} from "@/lib/integrations/x402/proof";
+} from "@/experimental/x402/proof";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

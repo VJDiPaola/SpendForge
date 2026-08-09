@@ -7,7 +7,7 @@ import {
   recordMonadSellerSettlementDelivery,
   x402Fingerprint,
   X402AdapterError,
-} from "@/lib/integrations/x402";
+} from "@/experimental/x402";
 import { createRuntimeOperationJournalStore } from "@/lib/operations/postgres-store";
 
 export const runtime = "nodejs";
