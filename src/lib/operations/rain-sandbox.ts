@@ -95,7 +95,7 @@ export function buildRainCardAuditReceipt(): AuditReceipt {
   entries = append(entries, {
     occurredAt: "2026-08-08T23:37:53.975Z",
     state: "planned",
-    truthBoundary: "sandbox-authoritative",
+    truthBoundary: "sandbox-unconfirmed",
     authoritativeReadback: {
       state: "not-started",
       providerState: "not-observed",
@@ -158,7 +158,7 @@ export function buildRainCardAuditReceipt(): AuditReceipt {
   entries = append(entries, {
     occurredAt: "2026-08-08T23:37:57.592Z",
     state: "provider-confirmed",
-    truthBoundary: "sandbox-unconfirmed",
+    truthBoundary: "sandbox-authoritative",
     providerHttpStatus: 200,
     providerCorrelationRef: maskedCardReference,
     responseShape: cardReadbackShape,
