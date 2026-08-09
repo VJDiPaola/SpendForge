@@ -36,6 +36,9 @@ movement. All execution routes and mutation gates are closed in the final build.
 
 Source repository: [VJDiPaola/SpendForge](https://github.com/VJDiPaola/SpendForge).
 It has no open-source license; public visibility does not grant reuse rights.
+Public fixture demo: [spendforge.vercel.app](https://spendforge.vercel.app).
+Provider testing remains on the protected Preview; Production has no provider
+credentials or mutation gates.
 
 ![SpendForge proof posture](./docs/screenshots/01-proof-posture.png)
 

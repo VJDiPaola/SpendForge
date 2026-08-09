@@ -4,7 +4,10 @@
 
 **A local application, fixture demo, and protected Vercel Preview exist. One bounded live OpenAI Responses call produced a durable strict purchase proposal that deterministic policy independently verified; it did not authorize payment. Rain Sandbox directly confirmed a fresh active virtual scoped card and accepted a 12-USD-cent authorization. A later exact GET matched every causal field, then exactly one settlement POST returned HTTP 400 and three bounded readbacks stayed nonterminal. That settlement outcome is ambiguous and will not be retried; completed spend is not proven. Historical funding remains an uncorrelated HTTP 202 acknowledgment. Monad's read-only `/supported` preflight passed, but payment, replay capture, and demo recording remain unproven.**
 
-- The private source repository is `https://github.com/VJDiPaola/SpendForge`.
+- The public source repository is `https://github.com/VJDiPaola/SpendForge`; it
+  remains unlicensed/all-rights-reserved.
+- The public fixture demo is `https://spendforge.vercel.app`; provider testing
+  remains on a protected Preview.
 - The Next.js production build succeeds locally and on the protected Preview.
 - The Atlas fixture mission, audited purchase proposal, policy decisions, cross-rail ledger, and protected-Preview/local artifact route work.
 - Fixture payments are always `authoritative: false` and say that no provider transaction was submitted.
