@@ -7,7 +7,7 @@ import {
   FixtureX402Gateway,
   UnavailableX402Gateway,
   x402SettlementReceiptSchema,
-} from "@/lib/integrations/x402";
+} from "@/experimental/x402";
 
 const sellerAddress = `0x${"2".repeat(40)}` as const;
 const price = {

@@ -21,12 +21,12 @@ import {
   SPENDFORGE_X402_ATTEMPT_HEADER,
   SPENDFORGE_X402_PRICE_ATOMIC,
   SPENDFORGE_X402_SCHEME,
-} from "@/lib/integrations/x402/constants";
-import { X402AdapterError } from "@/lib/integrations/x402/errors";
+} from "@/experimental/x402/constants";
+import { X402AdapterError } from "@/experimental/x402/errors";
 import {
   readMonadX402SellerEnvironment,
   type MonadX402SafetyConfig,
-} from "@/lib/integrations/x402/safety";
+} from "@/experimental/x402/safety";
 
 type RouteHandler<T> = (request: NextRequest) => Promise<NextResponse<T>>;
 

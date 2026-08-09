@@ -20,9 +20,15 @@ const injectionTextPattern =
 const hardRejectRules = new Set<DecisionPolicyRule>([
   "RESOURCE_NOT_SELECTED",
   "RESOURCE_NOT_IN_CATALOG",
+  "RESOURCE_SCHEMA_INVALID",
   "RESOURCE_INACTIVE",
   "RESOURCE_TYPE_DISALLOWED",
   "VENDOR_DISALLOWED",
+  "RAIL_DISALLOWED",
+  "PROVENANCE_TOO_LOW",
+  "LICENSE_DISALLOWED",
+  "DELIVERY_TYPE_UNSUPPORTED",
+  "SELF_DEALING_RISK",
   "MCC_DISALLOWED",
   "PER_PURCHASE_CAP_EXCEEDED",
   "TOTAL_BUDGET_EXCEEDED",
@@ -43,7 +49,10 @@ const reviewRules = new Set<DecisionPolicyRule>([
   "MISSING_EVIDENCE",
   "UNKNOWN_EVIDENCE_REFERENCE",
   "LOW_CONFIDENCE",
+  "PROVIDER_CONFIGURATION_UNHEALTHY",
 ]);
+
+const PROVENANCE_RANK = { SEEDED: 0, SIGNED: 1, VERIFIED: 2 } as const;
 
 function pushUnique(
   rules: DecisionPolicyRule[],
@@ -126,7 +135,58 @@ export function verifyPurchaseProposal(
       pushUnique(rules, "VENDOR_DISALLOWED");
     }
 
-    if (selected.paymentRail === "RAIN_CARD") {
+    const mandate = input.mission;
+
+    if (
+      mandate.allowedPaymentRails &&
+      !mandate.allowedPaymentRails.includes(selected.paymentRail)
+    ) {
+      pushUnique(rules, "RAIL_DISALLOWED");
+    }
+    if (
+      mandate.minimumProvenance &&
+      PROVENANCE_RANK[selected.provenance] <
+        PROVENANCE_RANK[mandate.minimumProvenance]
+    ) {
+      pushUnique(rules, "PROVENANCE_TOO_LOW");
+    }
+    if (
+      mandate.allowedLicenseUsages &&
+      selected.licenseUsage &&
+      !mandate.allowedLicenseUsages.includes(selected.licenseUsage)
+    ) {
+      pushUnique(rules, "LICENSE_DISALLOWED");
+    }
+    if (
+      mandate.supportedDeliveryTypes &&
+      selected.deliveryType &&
+      !mandate.supportedDeliveryTypes.includes(selected.deliveryType)
+    ) {
+      pushUnique(rules, "DELIVERY_TYPE_UNSUPPORTED");
+    }
+    // Buying from yourself is denied unless the mandate names the resource as
+    // a disclosed demo-supplier exception. "Demo mode" must never be a blanket
+    // bypass, so the exception is per-resource and explicit.
+    if (
+      mandate.buyerWalletAddress &&
+      selected.sellerWalletAddress &&
+      mandate.buyerWalletAddress.toLowerCase() ===
+        selected.sellerWalletAddress.toLowerCase() &&
+      !(mandate.selfDealingExceptionResourceIds ?? []).includes(
+        selected.resourceId,
+      )
+    ) {
+      pushUnique(rules, "SELF_DEALING_RISK");
+    }
+    if (input.providerHealth?.[selected.paymentRail] === false) {
+      pushUnique(rules, "PROVIDER_CONFIGURATION_UNHEALTHY");
+    }
+
+    // An MCC constraint is only enforced when the mandate configures one.
+    if (
+      selected.paymentRail === "RAIN_CARD" &&
+      input.mission.allowedMerchantCategoryCodes.length > 0
+    ) {
       if (!selected.merchantCategoryCode) {
         pushUnique(rules, "MCC_MISSING");
       } else if (

@@ -17,11 +17,11 @@ import { z } from "zod";
 import type {
   X402AttemptGate,
   X402AttemptState,
-} from "@/lib/integrations/x402/attempt-gate";
+} from "@/experimental/x402/attempt-gate";
 import {
   x402EvidenceFingerprint,
   x402Fingerprint,
-} from "@/lib/integrations/x402/attempt-gate";
+} from "@/experimental/x402/attempt-gate";
 import {
   MONAD_TESTNET_NETWORK,
   MONAD_TESTNET_USDC_ADDRESS,
@@ -30,25 +30,25 @@ import {
   SPENDFORGE_X402_SCHEME,
   SPENDFORGE_X402_USDC_DECIMALS,
   SPENDFORGE_X402_VERSION,
-} from "@/lib/integrations/x402/constants";
+} from "@/experimental/x402/constants";
 import type {
   HexAddress,
   X402Gateway,
   X402PayAndFetchInput,
   X402PurchaseResult,
-} from "@/lib/integrations/x402/contracts";
+} from "@/experimental/x402/contracts";
 import {
   validateX402PayAndFetchInput,
   x402DeliveryEnvelopeSchema,
   x402SettlementReceiptSchema,
   x402SupportedConfigSchema,
-} from "@/lib/integrations/x402/contracts";
-import { X402AdapterError } from "@/lib/integrations/x402/errors";
+} from "@/experimental/x402/contracts";
+import { X402AdapterError } from "@/experimental/x402/errors";
 import {
   createProtectedPreviewFetch,
   readMonadX402Environment,
   type MonadX402SafetyConfig,
-} from "@/lib/integrations/x402/safety";
+} from "@/experimental/x402/safety";
 
 const settleResponseSchema = z
   .object({

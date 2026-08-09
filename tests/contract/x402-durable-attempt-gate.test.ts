@@ -6,7 +6,7 @@ import {
   DurableX402AttemptGate,
   SPENDFORGE_X402_RUN_SCOPE,
   x402Fingerprint,
-} from "@/lib/integrations/x402";
+} from "@/experimental/x402";
 import type { DurableOperationJournalStore } from "@/lib/operations";
 import { MemoryOperationJournalStore } from "../helpers/memory-operation-journal";
 

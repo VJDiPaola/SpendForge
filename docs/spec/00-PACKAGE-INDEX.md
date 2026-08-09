@@ -1,6 +1,6 @@
 # SpendForge Specification Package
 
-**Status:** Historical build-ready specification; implementation status is maintained in [README.md](../README.md) and [DEMO-NOTES.md](../DEMO-NOTES.md)
+**Status:** Historical build-ready specification; implementation status is maintained in [README.md](../../README.md) and [DEMO-NOTES.md](../DEMO-NOTES.md)
 **As of:** August 8, 2026
 **Target:** Raingentic Commerce Hackathon NYC
 

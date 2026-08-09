@@ -9,14 +9,14 @@ import type {
   X402PayAndFetchInput,
   X402PurchaseResult,
   X402SettlementReceipt,
-} from "@/lib/integrations/x402/contracts";
+} from "@/experimental/x402/contracts";
 import {
   hexAddressSchema,
   validateX402PayAndFetchInput,
   x402DeliveryEnvelopeSchema,
   x402SettlementReceiptSchema,
   x402SupportedConfigSchema,
-} from "@/lib/integrations/x402/contracts";
+} from "@/experimental/x402/contracts";
 import { providerMoneySchema } from "@/lib/integrations/types";
 
 export type FixtureX402Options = {

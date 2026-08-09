@@ -6,7 +6,7 @@ import {
   MONAD_TESTNET_USDC_ADDRESS,
   preflightMonadTestnet,
   readExactMonadPaymentReceipt,
-} from "@/lib/integrations/x402";
+} from "@/experimental/x402";
 
 const buyer = `0x${"1".repeat(40)}` as const;
 const seller = `0x${"2".repeat(40)}` as const;

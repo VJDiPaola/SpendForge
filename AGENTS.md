@@ -1,6 +1,6 @@
 # SpendForge build instructions
 
-This repository is spec-first. Read this file and the complete `spec/` package before writing application code.
+This repository is spec-first. Read this file and the complete `docs/spec/` package before writing application code.
 
 ## Objective
 
@@ -12,7 +12,7 @@ When sources disagree, use this order and document the conflict:
 
 1. Workshop credentials, live Rain playground schemas, and authoritative API responses.
 2. Current official Monad and x402 documentation for the installed package version.
-3. The specification package in `spec/`.
+3. The specification package in `docs/spec/`.
 4. Redacted authoritative evidence checked into `evidence/`.
 
 Organizer PDFs and the superseded concept memo are preserved only in the
@@ -24,10 +24,10 @@ Never invent a request field, resource ID, transaction state, package export, or
 ## Required reading
 
 1. `BRIEF.md`
-2. `spec/00-PACKAGE-INDEX.md`
-3. `spec/02-CAPABILITY-BOUNDARIES.md`
-4. `spec/05-TECHNICAL-ARCHITECTURE.md`
-5. The workstream-specific document referenced in `spec/08-BUILD-HANDOFF.md`
+2. `docs/spec/00-PACKAGE-INDEX.md`
+3. `docs/spec/02-CAPABILITY-BOUNDARIES.md`
+4. `docs/spec/05-TECHNICAL-ARCHITECTURE.md`
+5. The workstream-specific document referenced in `docs/spec/08-BUILD-HANDOFF.md`
 
 ## Non-negotiable rules
 
@@ -41,7 +41,7 @@ Never invent a request field, resource ID, transaction state, package export, or
 - Do not show hidden chain-of-thought. Display a concise, structured decision summary.
 - Provider tools such as Daytona, Modal, Claude Code, or Vercel Sandbox are optional adapters, not required architecture.
 - Keep seeded or synthetic merchants, products, outcomes, and datasets labeled.
-- Update `DEMO-NOTES.md` whenever the real/fallback boundary changes.
+- Update `docs/DEMO-NOTES.md` whenever the real/fallback boundary changes.
 
 ## Implementation defaults
 
