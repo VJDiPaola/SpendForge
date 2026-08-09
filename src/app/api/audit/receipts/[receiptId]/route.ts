@@ -6,6 +6,7 @@ import {
   buildSyntheticAuditReceipt,
   RAIN_CARD_AUDIT_RECEIPT_ID,
   RAIN_COMPLETED_SPEND_RECEIPT_ID,
+  signAuditReceipt,
   SYNTHETIC_AUDIT_RECEIPT_ID,
 } from "@/lib/operations";
 import {
@@ -101,7 +102,8 @@ export async function GET(
         ? await buildAtlasDecisionReceipt()
         : buildSyntheticAuditReceipt();
   }
-  return Response.json(receipt, {
+  // Signed at the boundary, over the exact bytes about to be served.
+  return Response.json(signAuditReceipt(receipt), {
     headers: {
       ...safeHeaders,
       "Content-Disposition": isRainCardReceipt
