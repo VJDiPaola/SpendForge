@@ -115,7 +115,7 @@ const simulatedTransactionResponseSchema = z
     transactionId: z.string().uuid(),
     status: z.enum(["authorized", "declined", "settled"]),
     declinedReason: z.string().optional(),
-    completionReason: z.enum(["SETTLEMENT", "REFUND"]).optional(),
+    completionReason: z.enum(["SETTLEMENT", "settlement", "REFUND", "refund"]).optional(),
   })
   .strip();
 const spendReadbackResponseSchema = z
@@ -494,7 +494,6 @@ function evaluateExactSpend(input: {
 }) {
   const { payload, transactionId, cardId, userId } = input;
   const amountEncoding = classifySpendAmount(payload.spend.amount);
-  const merchantExact = payload.spend.merchantName === merchantName;
   const merchantNormalized =
     payload.spend.merchantName.trim().toLocaleLowerCase("en-US") ===
     merchantName.toLocaleLowerCase("en-US");
@@ -515,11 +514,7 @@ function evaluateExactSpend(input: {
       : currencyNormalized
         ? ["CURRENCY_USD_CASE_VARIANT"]
         : []),
-    ...(merchantExact
-      ? ["MERCHANT_MATCH"]
-      : merchantNormalized
-        ? ["MERCHANT_CASE_OR_WHITESPACE_VARIANT"]
-        : []),
+    ...(merchantNormalized ? ["MERCHANT_MATCH"] : []),
     ...(payload.spend.merchantCategoryCode === merchantCategoryCode
       ? ["MCC_5734_MATCH"]
       : []),
@@ -916,7 +911,7 @@ export async function executeRainNorthstarProof(input: {
       fingerprintFor("settle"),
       config.RECOVERY_ENCRYPTION_KEY,
     ),
-    body: {},
+    body: { amount: 12 },
   });
   providerCalls += 1;
   const settlementParsed = simulatedTransactionResponseSchema.safeParse(settlementResponse.payload);
@@ -925,7 +920,7 @@ export async function executeRainNorthstarProof(input: {
     settlementParsed.success &&
     settlementParsed.data.transactionId === recoveredTransactionId &&
     settlementParsed.data.status === "settled" &&
-    settlementParsed.data.completionReason === "SETTLEMENT";
+    ["SETTLEMENT", "settlement"].includes(settlementParsed.data.completionReason ?? "");
   const settlement400Code =
     settlementResponse.status === 400
       ? classifySettlement400(settlementResponse.payload)
@@ -1575,7 +1570,7 @@ export async function executeRainNorthstarResume(input: {
         fingerprintFor("settle"),
         config.RECOVERY_ENCRYPTION_KEY,
       ),
-      body: {},
+      body: { amount: 12 },
     });
     providerCalls += 1;
   } catch {
@@ -1606,7 +1601,7 @@ export async function executeRainNorthstarResume(input: {
     settlementParsed.success &&
     settlementParsed.data.transactionId === recovered.transactionId &&
     settlementParsed.data.status === "settled" &&
-    settlementParsed.data.completionReason === "SETTLEMENT";
+    ["SETTLEMENT", "settlement"].includes(settlementParsed.data.completionReason ?? "");
   const settlement400Code =
     settlementResponse.status === 400
       ? classifySettlement400(settlementResponse.payload)

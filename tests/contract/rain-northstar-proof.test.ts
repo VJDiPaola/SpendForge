@@ -115,9 +115,10 @@ function responseSequence(finalOverrides = {}) {
   ];
 }
 
-function fakeFetch(payloads: unknown[]) {
+function fakeFetch(payloads: unknown[], calls?: Array<{ request: RequestInfo | URL; init?: RequestInit }>) {
   let index = 0;
-  return vi.fn(async () => {
+  return vi.fn(async (request: RequestInfo | URL, init?: RequestInit) => {
+    calls?.push({ request, init });
     const payload = payloads[index];
     index += 1;
     return Response.json(payload);
@@ -127,7 +128,8 @@ function fakeFetch(payloads: unknown[]) {
 describe("bounded Rain Northstar sandbox proof", () => {
   it("claims each mutation before the call and proves exact completed readback", async () => {
     const store = new DurableFakeStore();
-    const fetchImpl = fakeFetch(responseSequence());
+    const calls: Array<{ request: RequestInfo | URL; init?: RequestInit }> = [];
+    const fetchImpl = fakeFetch(responseSequence(), calls);
 
     const result = await executeRainNorthstarProof({
       attemptId,
@@ -137,6 +139,7 @@ describe("bounded Rain Northstar sandbox proof", () => {
     });
 
     expect(fetchImpl).toHaveBeenCalledTimes(6);
+    expect(JSON.parse(String(calls[4].init?.body))).toEqual({ amount: 12 });
     expect(result).toMatchObject({
       providerCalls: 6,
       mutationCalls: 3,
@@ -178,6 +181,19 @@ describe("bounded Rain Northstar sandbox proof", () => {
       }),
     ).rejects.toMatchObject({ code: "RAIN_PROOF_ALREADY_CLAIMED" });
     expect(fetchImpl).toHaveBeenCalledTimes(6);
+  });
+
+  it("accepts sandbox lowercase settlement reason and padded merchant names", async () => {
+    const store = new DurableFakeStore();
+    const fetchImpl = fakeFetch(
+      responseSequence({ merchantName: " Northstar Synthetic  " }).map((payload) =>
+        payload && typeof payload === "object" && "completionReason" in payload
+          ? { ...payload, completionReason: "settlement" }
+          : payload,
+      ),
+    );
+    const result = await executeRainNorthstarProof({ attemptId, source, store, fetchImpl });
+    expect(result.paymentClaim).toBe("rain-sandbox-simulated-spend-completed");
   });
 
   it("stops before settlement when the authorization readback mismatches", async () => {
