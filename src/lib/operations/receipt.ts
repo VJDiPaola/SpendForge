@@ -144,7 +144,7 @@ export function buildAuditReceipt(
         : truthBoundary.includes("authoritative")
           ? "AUTHORITATIVE_READBACK_ATTACHED"
           : "PROVIDER_OUTCOME_NOT_TERMINAL",
-    journalHash: deriveEvidenceFingerprint(JSON.stringify(operations)),
+    journalHash: deriveSafeJournalHash(JSON.stringify(operations)),
     summary: {
       operationCount: latest.length,
       mutationCount: mutationRefs.size,
@@ -156,6 +156,28 @@ export function buildAuditReceipt(
 
   assertUiSafePayload(receipt);
   return receipt;
+}
+
+/**
+ * A SHA-256 digest is public-safe, but a hexadecimal digest can occasionally
+ * contain a 13–19 digit Luhn-valid run and trigger the defense-in-depth PAN
+ * scanner. Keep the strict fingerprint schema while deterministically
+ * domain-separating the digest until its public representation is scanner-safe.
+ */
+function deriveSafeJournalHash(serializedOperations: string): string {
+  for (let salt = 0; salt < 64; salt += 1) {
+    const candidate = deriveEvidenceFingerprint(
+      `spendforge-public-journal:${salt}:${serializedOperations}`,
+    );
+    try {
+      assertUiSafePayload(candidate, "journalHash");
+      return candidate;
+    } catch {
+      // A rare PAN-shaped digest is discarded; no provider or payload value is
+      // exposed, and the next deterministic domain separator is tried.
+    }
+  }
+  throw new Error("Unable to derive a scanner-safe journal hash");
 }
 
 function operationClone(entry: OperationJournalEntry): OperationJournalEntry {

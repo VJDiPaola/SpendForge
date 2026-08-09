@@ -70,8 +70,8 @@ Allowed:
   independently verified it.”
 - “Rain Sandbox issued and read back a fresh active virtual card, then accepted
   a 12-cent authorization.”
-- “SpendForge blocked settlement because exact transaction reconciliation was
-  unresolved.”
+- “SpendForge submitted settlement exactly once; Rain returned HTTP 400 and
+  readbacks stayed nonterminal, so no completed spend is claimed.”
 - “Historical Rain funding returned HTTP 202 with no causal identifier.”
 - “The Preview-only append-only journal and duplicate barrier are proven.”
 - “Monad is an official-package, fake-contract path with no live testnet call.”

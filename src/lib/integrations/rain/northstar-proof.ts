@@ -155,6 +155,25 @@ type ProviderCall = {
   responseShape: ReturnType<typeof captureResponseShape>;
 };
 
+const settlement400Codes = [
+  [/already settled/i, "SETTLE_400_ALREADY_SETTLED"],
+  [/already closed/i, "SETTLE_400_ALREADY_CLOSED"],
+  [/no card associated/i, "SETTLE_400_NO_CARD_ASSOCIATION"],
+  [/processor id/i, "SETTLE_400_NO_PROCESSOR_ID"],
+] as const;
+
+function classifySettlement400(payload: unknown): string {
+  const message =
+    typeof payload === "object" && payload !== null && "message" in payload
+      ? (payload as { message?: unknown }).message
+      : undefined;
+  if (typeof message !== "string") return "SETTLE_400_UNRECOGNIZED";
+  return (
+    settlement400Codes.find(([pattern]) => pattern.test(message))?.[1] ??
+    "SETTLE_400_UNRECOGNIZED"
+  );
+}
+
 export type RainNorthstarProofResult = {
   receipt: AuditReceipt;
   providerCalls: number;
@@ -904,6 +923,13 @@ export async function executeRainNorthstarProof(input: {
     settlementParsed.data.transactionId === recoveredTransactionId &&
     settlementParsed.data.status === "settled" &&
     settlementParsed.data.completionReason === "SETTLEMENT";
+  const settlement400Code =
+    settlementResponse.status === 400
+      ? classifySettlement400(settlementResponse.payload)
+      : undefined;
+  const settlementRejected =
+    settlementResponse.status === 400 &&
+    settlement400Code !== "SETTLE_400_UNRECOGNIZED";
   await appendDurableOperationState({
     store,
     scopeFingerprint: RAIN_NORTHSTAR_RUN_SCOPE,
@@ -912,7 +938,9 @@ export async function executeRainNorthstarProof(input: {
       state: settlementResponseMatched ? "provider-accepted" : "readback-pending",
       truthBoundary: settlementResponseMatched
         ? "sandbox-unconfirmed"
-        : "provider-ambiguous",
+        : settlementRejected
+          ? "provider-failed"
+          : "provider-ambiguous",
       providerHttpStatus: settlementResponse.status,
       providerCorrelationRef: maskProviderReference("rain_transaction", recoveredTransactionId),
       responseShape: settlementResponse.responseShape,
@@ -926,7 +954,13 @@ export async function executeRainNorthstarProof(input: {
       },
       evidenceCodes: settlementResponseMatched
         ? ["SETTLEMENT_RESPONSE_VALIDATED", "DIRECT_READBACK_REQUIRED"]
-        : ["SETTLEMENT_RESPONSE_AMBIGUOUS", "DIRECT_READBACK_REQUIRED"],
+        : [
+            ...(settlement400Code ? [settlement400Code] : []),
+            settlementRejected
+              ? "SETTLEMENT_PROVIDER_REJECTED"
+              : "SETTLEMENT_RESPONSE_AMBIGUOUS",
+            "DIRECT_READBACK_REQUIRED",
+          ],
     }),
   });
 
@@ -1570,6 +1604,13 @@ export async function executeRainNorthstarResume(input: {
     settlementParsed.data.transactionId === recovered.transactionId &&
     settlementParsed.data.status === "settled" &&
     settlementParsed.data.completionReason === "SETTLEMENT";
+  const settlement400Code =
+    settlementResponse.status === 400
+      ? classifySettlement400(settlementResponse.payload)
+      : undefined;
+  const settlementRejected =
+    settlementResponse.status === 400 &&
+    settlement400Code !== "SETTLE_400_UNRECOGNIZED";
   await appendDurableOperationState({
     store,
     scopeFingerprint: RAIN_NORTHSTAR_RUN_SCOPE,
@@ -1578,7 +1619,9 @@ export async function executeRainNorthstarResume(input: {
       state: settlementResponseMatched ? "provider-accepted" : "readback-pending",
       truthBoundary: settlementResponseMatched
         ? "sandbox-unconfirmed"
-        : "provider-ambiguous",
+        : settlementRejected
+          ? "provider-failed"
+          : "provider-ambiguous",
       providerHttpStatus: settlementResponse.status,
       providerCorrelationRef: maskProviderReference(
         "rain_transaction",
@@ -1595,7 +1638,13 @@ export async function executeRainNorthstarResume(input: {
       },
       evidenceCodes: settlementResponseMatched
         ? ["SETTLEMENT_RESPONSE_VALIDATED", "DIRECT_READBACK_REQUIRED"]
-        : ["SETTLEMENT_RESPONSE_AMBIGUOUS", "NO_MUTATION_RETRY"],
+        : [
+            ...(settlement400Code ? [settlement400Code] : []),
+            settlementRejected
+              ? "SETTLEMENT_PROVIDER_REJECTED"
+              : "SETTLEMENT_RESPONSE_AMBIGUOUS",
+            "NO_MUTATION_RETRY",
+          ],
     }),
   });
 

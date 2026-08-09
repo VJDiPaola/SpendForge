@@ -47,6 +47,12 @@ API drift and the still-unresolved executor/readback boundary prevented an
 authoritative causal match. SpendForge records this as ambiguity rather than
 guessing.
 
+The prior settlement capture retained only a redacted response shape, so its
+HTTP 400 cause cannot be recovered retroactively. Future bounded attempts
+classify only the four documented 400 message families when a provider message
+is actually returned; an absent or unrecognized message remains ambiguous and
+still cannot trigger a mutation retry.
+
 Official sources:
 
 - [Rain OpenAPI](https://rain-sandbox-trial.mintlify.site/openapi.json)
